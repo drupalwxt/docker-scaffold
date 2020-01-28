@@ -1,0 +1,132 @@
+# Docker Compose (v2)
+
+version: "2"
+services:
+
+  cli_scripts:
+    build:
+      context: docker/images/ci
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+        - http_proxy=${HTTP_PROXY}
+        - https_proxy=${HTTP_PROXY}
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTP_PROXY}
+        - NO_PROXY=hub,${NO_PROXY}
+        - no_proxy=hub,${NO_PROXY}
+    environment:
+      - http_proxy=${HTTP_PROXY}
+      - https_proxy=${HTTP_PROXY}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTP_PROXY}
+      - NO_PROXY=${NO_PROXY}
+      - no_proxy=${NO_PROXY}
+    volumes:
+      - root-sync:/var/www:nocopy
+      - files_data:/var/www/html/sites/default/files
+      - files_private_data:/var/www/files_private
+    container_name: ${DOCKER_NAME}_web_scripts
+
+  web:
+    build:
+      context: docker/images/dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+        - http_proxy=${HTTP_PROXY}
+        - https_proxy=${HTTP_PROXY}
+        - HTTP_PROXY=${HTTP_PROXY}
+        - HTTPS_PROXY=${HTTP_PROXY}
+        - NO_PROXY=${NO_PROXY}
+        - no_proxy=${NO_PROXY}
+    environment:
+      - http_proxy=${HTTP_PROXY}
+      - https_proxy=${HTTP_PROXY}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTP_PROXY}
+      - NO_PROXY=${NO_PROXY}
+      - no_proxy=${NO_PROXY}
+    volumes:
+      - root-sync:/var/www:nocopy
+      - files_data:/var/www/html/sites/default/files
+      - files_private_data:/var/www/files_private
+    depends_on:
+      - db
+    ports:
+      - "9000"
+    container_name: ${DOCKER_NAME}_web
+
+  cli:
+    build:
+      context: docker/images/cli
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    environment:
+      - http_proxy=${HTTP_PROXY}
+      - https_proxy=${HTTP_PROXY}
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_proxy=${HTTP_PROXY}
+      - NO_PROXY=hub,${NO_PROXY}
+      - no_proxy=hub,${NO_PROXY}
+    volumes:
+      - root-sync:/var/www:nocopy
+      - files_data:/var/www/html/sites/default/files
+      - files_private_data:/var/www/files_private
+    depends_on:
+      - db
+      - web
+    container_name: ${DOCKER_NAME}_cli
+
+  db:
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=${DB_NAME}
+    volumes:
+      - db_data:/var/lib/mysql
+      - files_data:/var/www/html/sites/default/files
+      - files_private_data:/var/www/files_private
+    ports:
+      - "3308:3306"
+    container_name: ${DOCKER_NAME}_db
+    command: mysqld --max_allowed_packet=32M
+
+  nginx:
+    build:
+      context: docker/images/nginx
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    volumes:
+     - docroot-sync:/var/www/html:nocopy
+     - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - '80:80'
+    depends_on:
+      - web
+    restart: always
+    container_name: ${DOCKER_NAME}_nginx
+
+  hub:
+    image: drupalcomposer/selenium:hub
+    ports:
+      - "4444:4444"
+    depends_on:
+     - db
+     - web
+    container_name: ${DOCKER_NAME}_hub
+
+  firefox:
+    image: drupalcomposer/selenium:node-firefox
+    depends_on:
+     - db
+     - web
+     - hub
+    container_name: ${DOCKER_NAME}_firefox
+
+volumes:
+  root-sync:
+    external: true
+  docroot-sync:
+    external: true
+  db_data:
+  files_data:
+  files_private_data:

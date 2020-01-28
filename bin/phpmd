@@ -1,0 +1,29 @@
+#!/bin/bash
+# strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+
+# Source all the configuration environment variables from the docker-compose
+# .env file.
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. ${dir}/source_config
+
+if ! type docker > /dev/null; then
+  echo "Docker is required to be present on $PATH"
+  exit 0
+fi
+
+if [[ "${CI:-}" ]] ; then
+  image="${DOCKER_IMAGE}_cli"
+else
+  image="${DOCKER_IMAGE}_cli"
+fi
+
+docker run -i \
+  --entrypoint=/var/www/vendor/bin/phpmd \
+  -v "${PWD}":"${PWD}" \
+  -v /tmp/:/tmp/ \
+  --sig-proxy=true \
+  --pid=host \
+  --volumes-from "${DOCKER_NAME}_web" \
+  --rm \
+  "${image}" "$@"

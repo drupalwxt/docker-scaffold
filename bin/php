@@ -1,0 +1,49 @@
+#!/bin/bash
+# strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+
+# Source all the configuration environment variables from the docker-compose
+# .env file.
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. ${dir}/source_config
+
+if ! type docker > /dev/null; then
+  echo "Docker is required to be present on $PATH"
+  exit 0
+fi
+
+if [[ "${CI:-}" ]] ; then
+  image="${DOCKER_IMAGE}_cli"
+else
+  image="${DOCKER_IMAGE}_cli"
+fi
+
+if [[ "${JETBRAINS_REMOTE_RUN:-}" ]] ; then
+  docker run -i \
+    --entrypoint=php \
+    -e "IDE_BEHAT_VERSION=3.3.0" \
+    -e "IDE_BEHAT_DIR=/var/www/vendor/bin/behat" \
+    -e BEHAT_PARAMS='{"extensions":{"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/var/www/html"}, "drush":{"root":"/var/www/html"}}, "Behat\\MinkExtension":{"base_url" : "http://nginx", "selenium2":{"wd_host":"http://hub:4444/wd/hub"}}}}' \
+    -v "${PWD}":"${PWD}" \
+    -v /tmp/:/tmp/ \
+    -v /home/docker/.phpstorm_helpers/:/home/docker/.phpstorm_helpers/ \
+    -w "/var/www/html/profiles/wxt/modules/custom/wxt_test/tests/" \
+    --sig-proxy=true \
+    --pid=host \
+    --volumes-from "${DOCKER_NAME}_web" \
+    --net "${DOCKER_IMAGE}_default" \
+    --rm \
+    "${image}" "$@"
+else
+  docker run -i \
+    --entrypoint=php \
+    -v "${PWD}":"${PWD}" \
+    -v /tmp/:/tmp/ \
+    -w "/var/www/html" \
+    --sig-proxy=true \
+    --pid=host \
+    --volumes-from "${DOCKER_NAME}_web" \
+    --net "${DOCKER_IMAGE}_default" \
+    --rm \
+    "${image}" "$@"
+fi
