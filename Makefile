@@ -1,4 +1,4 @@
-NAME := drupalwxt/site-wxt
+NAME := $(or $(BASE_IMAGE),$(BASE_IMAGE),drupalwxt/site-wxt)
 VERSION := $(or $(VERSION),$(VERSION),'latest')
 PLATFORM := $(shell uname -s)
 
@@ -28,6 +28,7 @@ base:
 	docker build -f docker/Dockerfile \
                -t $(NAME):$(VERSION) \
                --no-cache \
+               --build-arg SSH_PRIVATE_KEY="$$(test -f $$HOME/.ssh/id_rsa && base64 $$HOME/.ssh/id_rsa)" \
                --build-arg http_proxy=$$HTTP_PROXY \
                --build-arg HTTP_PROXY=$$HTTP_PROXY \
                --build-arg https_proxy=$$HTTP_PROXY \

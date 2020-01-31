@@ -1,6 +1,7 @@
 # https://github.com/docker-library/drupal/blob/master/8.8/fpm-alpine/Dockerfile
 FROM drupal:8.8-fpm-alpine
 
+ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
 ARG GIT_PASSWORD
 
@@ -15,7 +16,7 @@ HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php
 RUN apk --update add --no-cache bash=5.0.11-r1 \
                                 git=2.24.1-r0 \
                                 gzip=1.10-r0 \
-                                mysql-client=10.4.10-r0 \
+                                mysql-client=10.4.12-r0 \
                                 patch=2.7.6-r6 \
                                 postgresql-client=12.1-r0 \
                                 ssmtp=2.64-r14 \
@@ -69,9 +70,15 @@ COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
 COPY composer.json /var/www/composer.json
 COPY composer.lock /var/www/composer.lock
 WORKDIR /var/www
-RUN composer global require "hirak/prestissimo:^0.3"; \
+RUN apk --update --no-cache add git openssh-client; \
+    mkdir -p /root/.ssh; echo $SSH_PRIVATE_KEY | base64 -d > /root/.ssh/id_rsa; \
+    chmod 700 /root/.ssh; chmod 600 /root/.ssh/id_rsa; \
+    ssh-keyscan github.com > /root/.ssh/known_hosts; \
+    composer global require "hirak/prestissimo:^0.3"; \
     composer install --prefer-dist \
-                     --no-interaction
+                     --no-interaction && \
+    rm -rf /root/.ssh && \
+    apk del openssh-client
 
 # Permissions
 WORKDIR /var/www/html

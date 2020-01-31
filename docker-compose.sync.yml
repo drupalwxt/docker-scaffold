@@ -23,7 +23,6 @@ services:
       - no_proxy=${NO_PROXY}
     volumes:
       - root-sync:/var/www:nocopy
-      - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
     container_name: ${DOCKER_NAME}_web_scripts
 
@@ -47,7 +46,6 @@ services:
       - no_proxy=${NO_PROXY}
     volumes:
       - root-sync:/var/www:nocopy
-      - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
     depends_on:
       - db
@@ -69,7 +67,6 @@ services:
       - no_proxy=hub,${NO_PROXY}
     volumes:
       - root-sync:/var/www:nocopy
-      - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
     depends_on:
       - db
@@ -83,7 +80,6 @@ services:
       - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - db_data:/var/lib/mysql
-      - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
     ports:
       - "3308:3306"
