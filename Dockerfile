@@ -16,9 +16,9 @@ HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php
 RUN apk --update add --no-cache bash=5.0.11-r1 \
                                 git=2.24.1-r0 \
                                 gzip=1.10-r0 \
-                                mysql-client=10.4.12-r0 \
+                                mysql-client \
                                 patch=2.7.6-r6 \
-                                postgresql-client=12.1-r0 \
+                                postgresql-client \
                                 ssmtp=2.64-r14 \
                                 zlib-dev=1.2.11-r3
 
