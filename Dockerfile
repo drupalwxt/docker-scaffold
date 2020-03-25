@@ -28,11 +28,11 @@ RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
-RUN apk add --update --no-cache icu=64.2-r0 \
-                                icu-libs=64.2-r0 \
-                                libzip-dev=1.5.2-r0; \
+RUN apk add --update --no-cache icu \
+                                icu-libs \
+                                libzip-dev; \
     \
-    apk add --no-cache --virtual .build-deps icu-dev=64.2-r0; \
+    apk add --no-cache --virtual .build-deps icu-dev; \
     \
     docker-php-ext-configure zip \
         --with-zlib-dir=/usr; \
