@@ -1,3 +1,5 @@
+include .env
+
 NAME := $(or $(BASE_IMAGE),$(BASE_IMAGE),drupalwxt/site-wxt)
 VERSION := $(or $(VERSION),$(VERSION),'latest')
 PLATFORM := $(shell uname -s)
@@ -37,13 +39,13 @@ base:
                --build-arg GIT_PASSWORD=$(GIT_PASSWORD) .
 
 drupal_install:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run wxt
+	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(PROFILE_NAME)
 
 drupal_init:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init wxt
+	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME)
 
 drupal_export:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-export wxt "${DATABASE_BACKUP}"
+	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"
 
 drupal_import:
 	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"
@@ -52,7 +54,7 @@ drupal_migrate:
 	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate
 
 drupal_perm:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-perm wxt
+	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME)
 
 drush_archive:
 	./docker/bin/drush archive-dump --destination="/var/www/files_private/drupal$$(date +%Y%m%d_%H%M%S).tgz" \
@@ -79,14 +81,14 @@ phpcs: drupal_cs
               --extensions=php,module,inc,install,test,profile,theme \
               --report=full \
               --colors \
-              --ignore=/var/www/html/profiles/wxt/modules/custom/wxt_test \
+              --ignore=/var/www/html/profiles/$(PROFILE_NAME)/modules/custom/wxt_test \
               --ignore=/var/www/html/modules/custom/wxt_library \
               --ignore=*.css \
               --ignore=*.md \
               --ignore=/var/www/html/*/custom/*/*.info.yml \
               /var/www/html/modules/custom \
               /var/www/html/themes/custom \
-              /var/www/html/profiles/wxt/modules/custom
+              /var/www/html/profiles/$(PROFILE_NAME)/modules/custom
 
 	./docker/bin/phpcs --standard=/var/www/html/core/phpcs.xml \
               --extensions=php,module,inc,install,test,profile,theme \
@@ -94,16 +96,16 @@ phpcs: drupal_cs
               --colors \
               --ignore=*.md \
               -l \
-              /var/www/html/profiles/wxt
+              /var/www/html/profiles/$(PROFILE_NAME)
 
 phpunit:
 	./docker/bin/phpunit --colors=always \
                 --testsuite=kernel \
-                --group wxt
+                --group $(PROFILE_NAME)
 
 	./docker/bin/phpunit --colors=always \
                 --testsuite=unit \
-                --group wxt
+                --group $(PROFILE_NAME)
 
 test: lint behat
 
