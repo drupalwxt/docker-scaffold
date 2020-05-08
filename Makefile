@@ -12,7 +12,8 @@ behat:
 	./docker/bin/behat -c behat.yml --colors --verbose
 
 clean:
-	rm -rf {html,vendor}
+	rm -rf html
+	rm -rf vendor
 	rm -f composer.lock
 	composer clear-cache
 
