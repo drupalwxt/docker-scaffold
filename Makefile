@@ -108,7 +108,7 @@ phpunit:
                 --testsuite=unit \
                 --group $(PROFILE_NAME)
 
-test: lint behat
+test: lint phpcs phpunit behat
 
 up:
 	docker-machine start default
