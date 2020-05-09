@@ -50,7 +50,8 @@ drupal_init() {
 #
 drupal_install() {
   header Install Drupal distribution
-
+  # We will let bash manage errors with set -e (errexit)
+  set -e
   time drush si "${OPTION}" \
     --sites-subdir=default \
     --db-url=mysql://root:root@db:3306/"${OPTION}" \
@@ -60,6 +61,7 @@ drupal_install() {
     --site-name="Drupal Install Profile (${OPTION})" \
     install_configure_form.update_status_module='array(FALSE,FALSE)' \
     --yes
+  set +e
 }
 
 # drupal_export
@@ -110,11 +112,13 @@ drupal_import() {
 #
 drupal_migrate() {
   header Initialize migrate and default content
-
+  # We will let bash manage errors with set -e (errexit)
+  set -e
   cd /var/www/html/sites/default
   drush migrate:import --group wxt --tag 'Core'
   drush migrate:import --group gcweb --tag 'Core'
   drush migrate:import --group gcweb --tag 'Menu'
+  set +e
 }
 
 # drupal_perm
@@ -125,7 +129,7 @@ drupal_perm() {
   header Configure the settings.php and files directory permissions
 
   if [[ $NFS != "nfs" ]]; then
-    chown -R -f www-data:www-data /var/www/html/
+    chown -R -f :www-data /var/www/html/
     sleep 5
   fi
 
@@ -149,8 +153,10 @@ drupal_perm() {
 #
 drupal_updatedb() {
   header Update Drupal with database updates.
-
+  # We will let bash manage errors with set -e (errexit)
+  set -e
   drush -y updatedb
+  set +e
 }
 
 ##

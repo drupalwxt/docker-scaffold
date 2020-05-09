@@ -46,9 +46,7 @@ services:
       - NO_PROXY=${NO_PROXY}
       - no_proxy=${NO_PROXY}
     volumes:
-      - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
-      - files_data:/var/www/html/sites/default/files
-      - files_private_data:/var/www/files_private
+      - .:/var/www
     depends_on:
       - db
     ports:
@@ -68,10 +66,7 @@ services:
       - NO_PROXY=hub,${NO_PROXY}
       - no_proxy=hub,${NO_PROXY}
     volumes:
-      - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
-      - ./docker:/var/www/docker
-      - files_data:/var/www/html/sites/default/files
-      - files_private_data:/var/www/files_private
+      - ./:/var/www
     depends_on:
       - db
       - web

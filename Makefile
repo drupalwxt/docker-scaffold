@@ -56,10 +56,8 @@ drupal_cs:
 	cp docker/conf/phpcs.xml html/core/phpcs.xml
 	cp docker/conf/phpunit.xml html/core/phpunit.xml
 
-
-
 drupal_install:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(PROFILE_NAME)
+	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME)
 
 drupal_init:
 	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME)
