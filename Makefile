@@ -88,7 +88,7 @@ phpcs: drupal_cs
               --ignore=*.md \
               --ignore=/var/www/html/*/custom/*/*.info.yml \
               /var/www/html/modules/contrib/wxt_library \
-              /var/www/html/themes/custom \
+              /var/www/html/themes/contrib/wxt_bootstrap \
               /var/www/html/profiles/$(PROFILE_NAME)/modules/custom
 
 	./docker/bin/phpcs --standard=/var/www/html/core/phpcs.xml \
