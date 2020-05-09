@@ -91,7 +91,7 @@ services:
       args:
         - BASE_IMAGE=${BASE_IMAGE}
     volumes:
-     - files_data:/var/www/html/sites/default/files
+     - ./html:/var/www/html
      - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - '80:80'
