@@ -112,13 +112,10 @@ drupal_import() {
 #
 drupal_migrate() {
   header Initialize migrate and default content
-  # We will let bash manage errors with set -e (errexit)
-  set -e
   cd /var/www/html/sites/default
   drush migrate:import --group wxt --tag 'Core'
   drush migrate:import --group gcweb --tag 'Core'
   drush migrate:import --group gcweb --tag 'Menu'
-  set +e
 }
 
 # drupal_perm
