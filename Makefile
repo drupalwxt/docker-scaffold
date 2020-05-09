@@ -87,7 +87,7 @@ phpcs: drupal_cs
               --ignore=*.css \
               --ignore=*.md \
               --ignore=/var/www/html/*/custom/*/*.info.yml \
-              /var/www/html/modules/custom \
+              /var/www/html/modules/contrib/wxt_library \
               /var/www/html/themes/custom \
               /var/www/html/profiles/$(PROFILE_NAME)/modules/custom
 
