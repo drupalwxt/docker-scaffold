@@ -17,13 +17,11 @@ if [ -z "${BEHAT_PATH-}" ]; then
   exit
 fi
 
+image="${DOCKER_IMAGE}_cli"
+network="${DOCKER_IMAGE}_default"
 if [[ "${CI:-}" ]] ; then
-  image="${DOCKER_IMAGE}_cli"
-  network="${DOCKER_IMAGE}_default"
   vol="${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php"
 else
-  image="${DOCKER_IMAGE}_cli"
-  network="${DOCKER_IMAGE}_default"
   vol="${PWD}:/var/www"
 fi
 
@@ -36,6 +34,7 @@ if [ -z "${NO_PROXY-}" ]; then
 fi
 
 docker run -i \
+  -e "IDE_BEHAT_VERSION=3.2.2" \
   -e "IDE_BEHAT_DIR=/var/www/vendor/behat/behat/bin/behat" \
   --entrypoint=/var/www/vendor/bin/behat \
   -v ${vol} \
