@@ -18,10 +18,12 @@ if [ -z "${BEHAT_PATH-}" ]; then
 fi
 
 if [[ "${CI:-}" ]] ; then
-  image="${DOCKER_IMAGE}_cli"
+  image="${DOCKER_NAME}_cli"
+  network="${DOCKER_NAME}_default"
   vol="${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php"
 else
   image="${DOCKER_IMAGE}_cli"
+  network="${DOCKER_IMAGE}_default"
   vol="${PWD}:/var/www"
 fi
 
@@ -34,7 +36,6 @@ if [ -z "${NO_PROXY-}" ]; then
 fi
 
 docker run -i \
-  -e "IDE_BEHAT_VERSION=3.2.2" \
   -e "IDE_BEHAT_DIR=/var/www/vendor/behat/behat/bin/behat" \
   --entrypoint=/var/www/vendor/bin/behat \
   -v ${vol} \
@@ -50,6 +51,6 @@ docker run -i \
   -e BEHAT_PARAMS='{"extensions":{"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/var/www/html"}, "drush":{"root":"/var/www/html"}}, "Behat\\MinkExtension":{"base_url" : "http://nginx", "selenium2":{"wd_host":"http://hub:4444/wd/hub"}}}}' \
   --sig-proxy=true \
   --pid=host \
-  --net "${DOCKER_IMAGE}_default" \
+  --net "${network}" \
   --rm \
   "${image}" "$@"

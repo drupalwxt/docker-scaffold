@@ -6,38 +6,57 @@ PLATFORM := $(shell uname -s)
 
 all: base
 
-build: all
+base:
+	docker build -f docker/Dockerfile \
+	    -t $(NAME):$(VERSION) \
+	    --build-arg SSH_PRIVATE_KEY="$$(test -f $$HOME/.ssh/id_rsa && base64 $$HOME/.ssh/id_rsa)" \
+	    --no-cache \
+	    --build-arg http_proxy=$$HTTP_PROXY \
+	    --build-arg HTTP_PROXY=$$HTTP_PROXY \
+	    --build-arg https_proxy=$$HTTP_PROXY \
+	    --build-arg HTTPS_PROXY=$$HTTP_PROXY \
+	    --build-arg no_proxy=$$NO_PROXY \
+	    --build-arg NO_PROXY=$$NO_PROXY \
+	    --build-arg GIT_USERNAME=$(GIT_USERNAME) \
+	    --build-arg GIT_PASSWORD=$(GIT_PASSWORD) .
 
 behat:
-	./docker/bin/behat -c behat.yml --colors --verbose
+	./docker/bin/behat -vv -c behat.yml --colors
 
-clean:
+build: all
+
+clean: clean_composer
+
+clean_composer:
 	rm -rf html
 	rm -rf vendor
 	rm -f composer.lock
 	composer clear-cache
 
 clean_docker:
-	docker rm $$(docker ps --all -q -f status=exited)
+	rm -rf docker
+	git clone $(DOCKER_REPO) docker
+	[ "$(shell docker images -q --filter "dangling=true")" = "" ] || docker rmi -f $(shell docker images -q --filter "dangling=true")
+	[ "$(shell docker ps -a -q -f name=${DOCKER_NAME}_)" = "" ] || docker rm -f $(shell docker ps -a -q -f name=${DOCKER_NAME}_)
+	[ "$(shell docker images -q -f reference=${DOCKER_IMAGE}_*)" = "" ] || docker rmi -f $(shell docker images -q -f reference=*${DOCKER_IMAGE}_*)
+	[ "$(shell docker images -q -f reference=${NAME})" = "" ] || docker rmi -f $(shell docker images -q -f reference=${NAME})
+
+	clean_site: clean_composer  clean_docker composer_install base docker_build drupal_install
+		./docker/bin/drush cr
+
+composer_install:
+	composer install
+
+docker_build:
+	docker-compose build --no-cache
+	docker-compose up -d
 
 drupal_cs:
 	mkdir -p html/core/
 	cp docker/conf/phpcs.xml html/core/phpcs.xml
 	cp docker/conf/phpunit.xml html/core/phpunit.xml
 
-base:
-	$(eval GIT_USERNAME := $(if $(GIT_USERNAME),$(GIT_USERNAME),gitlab-ci-token))
-	$(eval GIT_PASSWORD := $(if $(GIT_PASSWORD),$(GIT_PASSWORD),$(CI_JOB_TOKEN)))
-	docker build -f docker/Dockerfile \
-               -t $(NAME):$(VERSION) \
-               --no-cache \
-               --build-arg SSH_PRIVATE_KEY="$$(test -f $$HOME/.ssh/id_rsa && base64 $$HOME/.ssh/id_rsa)" \
-               --build-arg http_proxy=$$HTTP_PROXY \
-               --build-arg HTTP_PROXY=$$HTTP_PROXY \
-               --build-arg https_proxy=$$HTTP_PROXY \
-               --build-arg HTTPS_PROXY=$$HTTP_PROXY \
-               --build-arg GIT_USERNAME=$(GIT_USERNAME) \
-               --build-arg GIT_PASSWORD=$(GIT_PASSWORD) .
+
 
 drupal_install:
 	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(PROFILE_NAME)
@@ -79,34 +98,42 @@ phpcs: drupal_cs
 	./docker/bin/phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffer
 
 	./docker/bin/phpcs --standard=/var/www/html/core/phpcs.xml \
-              --extensions=php,module,inc,install,test,profile,theme \
-              --report=full \
-              --colors \
-              --ignore=/var/www/html/profiles/$(PROFILE_NAME)/modules/custom/wxt_test \
-              --ignore=/var/www/html/modules/custom/wxt_library \
-              --ignore=*.css \
-              --ignore=*.md \
-              --ignore=/var/www/html/*/custom/*/*.info.yml \
-              /var/www/html/modules/contrib/wxt_library \
-              /var/www/html/themes/contrib/wxt_bootstrap \
-              /var/www/html/profiles/$(PROFILE_NAME)/modules/custom
+	    --extensions=php,module,inc,install,test,profile,theme \
+	    --report=full \
+	    --colors \
+	    --ignore=/var/www/html/profiles/$(PROFILE_NAME)/modules/custom/wxt_test \
+	    --ignore=*.css \
+	    --ignore=*.txt \
+	    --ignore=*.md \
+	    --ignore=/var/www/html/*/custom/*/*.info.yml \
+	    /var/www/html/modules/contrib/wxt_library \
+	    /var/www/html/themes/contrib/wxt_bootstrap \
+	    /var/www/html/profiles/$(PROFILE_NAME)/modules/custom
 
 	./docker/bin/phpcs --standard=/var/www/html/core/phpcs.xml \
-              --extensions=php,module,inc,install,test,profile,theme \
-              --report=full \
-              --colors \
-              --ignore=*.md \
-              -l \
-              /var/www/html/profiles/$(PROFILE_NAME)
+	    --extensions=php,module,inc,install,test,profile,theme \
+	    --report=full \
+	    --colors \
+	    --ignore=*.md \
+	    -l \
+	    /var/www/html/profiles/$(PROFILE_NAME)
 
 phpunit:
 	./docker/bin/phpunit --colors=always \
-                --testsuite=kernel \
-                --group $(PROFILE_NAME)
+	    --testsuite=kernel \
+	    --group $(PROFILE_NAME)
 
 	./docker/bin/phpunit --colors=always \
-                --testsuite=unit \
-                --group $(PROFILE_NAME)
+	    --testsuite=unit \
+	    --group $(PROFILE_NAME)
+
+release: tag_latest
+	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make base'"; false; fi
+	docker push $(NAME)
+	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
+
+tag_latest:
+	docker tag -f $(NAME):$(VERSION) $(NAME):latest
 
 test: lint phpcs phpunit behat
 
@@ -121,20 +148,17 @@ update: base
 	docker-compose build --no-cache
 	docker-compose up -d
 
-release: tag_latest
-	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make build'"; false; fi
-	docker push $(NAME)
-	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
-
-tag_latest:
-	docker tag -f $(NAME):$(VERSION) $(NAME):latest
-
 .PHONY: \
 	all \
 	base \
 	behat \
 	build \
 	clean \
+	clean_composer \
+	clean_docker \
+	clean_site \
+	composer_install \
+	docker_build \
 	drupal_cs \
 	drupal_export \
 	drupal_install \
