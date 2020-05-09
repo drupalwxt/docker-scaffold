@@ -41,8 +41,8 @@ clean_docker:
 	[ "$(shell docker images -q -f reference=${DOCKER_IMAGE}_*)" = "" ] || docker rmi -f $(shell docker images -q -f reference=*${DOCKER_IMAGE}_*)
 	[ "$(shell docker images -q -f reference=${NAME})" = "" ] || docker rmi -f $(shell docker images -q -f reference=${NAME})
 
-	clean_site: clean_composer  clean_docker composer_install base docker_build drupal_install
-		./docker/bin/drush cr
+clean_site: clean_composer clean_docker composer_install base docker_build drupal_install
+	./docker/bin/drush cr
 
 composer_install:
 	composer install
