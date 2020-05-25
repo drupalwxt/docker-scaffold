@@ -1,0 +1,12 @@
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DATABASE=${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgres/data
+      - files_private_data:/var/www/files_private
+    ports:
+      - "5432:5432"
+    container_name: ${DOCKER_NAME}_db
