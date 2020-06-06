@@ -22,8 +22,7 @@ services:
       - NO_PROXY=${NO_PROXY}
       - no_proxy=${NO_PROXY}
     volumes:
-      - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
-      - files_data:/var/www/html/sites/default/files
+      - ./:/var/www/html
       - files_private_data:/var/www/files_private
     container_name: ${DOCKER_NAME}_web_scripts
 
