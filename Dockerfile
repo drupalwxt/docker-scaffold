@@ -13,7 +13,7 @@ COPY docker/conf/php-fpm/status.conf /usr/local/etc/php-fpm.d/
 HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php-fpm-healthcheck" ]
 
 # Install additional extensions
-RUN apk --update add --no-cache bash=5.0.11-r1 \
+RUN apk --update add --no-cache bash=5.0.17-r0 \
                                 git \
                                 gzip=1.10-r0 \
                                 mysql-client \
