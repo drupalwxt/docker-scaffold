@@ -12,7 +12,7 @@ In order to use this project your base Composer Project should have the followin
 * Symlinks at the root directory to both the `Makefile` and the specific `docker.yml` files you may need
 * This repository cloned into the root directory with the name `docker`
 
-> Note: To see a working example we take a look at the [Composer Project for Drupal WxT][site-wxt]
+> **Note**: To see a working example please take a look at the [Composer Project for Drupal WxT][site-wxt]
 
 
 [composer]:                     https://getcomposer.org
