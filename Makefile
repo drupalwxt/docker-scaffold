@@ -133,7 +133,7 @@ release: tag_latest
 tag_latest:
 	docker tag -f $(NAME):$(VERSION) $(NAME):latest
 
-test: lint phpcs phpunit behat
+test: phpcs phpunit behat
 
 up:
 	docker-machine start default
