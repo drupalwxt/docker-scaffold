@@ -59,6 +59,7 @@ drupal_install() {
     --account-pass=Drupal@2019 \
     --site-mail=admin@example.com \
     --site-name="Drupal Install Profile (${OPTION})" \
+    wxt_extension_configure_form.select_all='TRUE' \
     install_configure_form.update_status_module='array(FALSE,FALSE)' \
     --yes
   set +e
