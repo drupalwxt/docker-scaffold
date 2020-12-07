@@ -54,9 +54,9 @@ drupal_install() {
   set -e
   time drush si "${OPTION}" \
     --sites-subdir=default \
-    --db-url=mysql://root:root@db:3306/"${OPTION}" \
+    --db-url=pgsql://root:root@db:5432/"${OPTION}" \
     --account-name=admin \
-    --account-pass=Drupal@2019 \
+    --account-pass=Drupal@2021 \
     --site-mail=admin@example.com \
     --site-name="Drupal Install Profile (${OPTION})" \
     wxt_extension_configure_form.select_all='TRUE' \

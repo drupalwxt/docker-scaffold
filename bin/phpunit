@@ -25,7 +25,7 @@ docker run -i \
   -v $vol \
   -v /tmp/:/tmp/ \
   -w "/var/www/html/core" \
-  -e "SIMPLETEST_DB=mysql://root:root@db:3306/${DB_NAME}" \
+  -e "SIMPLETEST_DB=pgsql://root:root@db:5432/${DB_NAME}" \
   --sig-proxy=true \
   --pid=host \
   --net "${DOCKER_IMAGE}_default" \

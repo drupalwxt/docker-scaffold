@@ -79,16 +79,17 @@ services:
     container_name: ${DOCKER_NAME}_cli
 
   db:
-    image: mysql:5.7
+    image: postgres:11-alpine
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=${DB_NAME}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql
     ports:
-      - "3308:3306"
+      - "5432:5432"
     container_name: ${DOCKER_NAME}_db
-    command: mysqld --max_allowed_packet=32M
+    command: ["-c", "shared_buffers=512MB", "-c", "max_connections=200", "-c", "work_mem=2048MB", "-c", "effective_cache_size=512MB", "-c", "maintenance_work_mem=32MB", "-c", "min_wal_size=512MB", "-c", "max_wal_size=512MB", "-c", "wal_buffers=8048kB"]
 
   nginx:
     build:

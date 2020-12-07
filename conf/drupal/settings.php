@@ -93,9 +93,10 @@ $databases['default']['default'] = [
   'username' => 'root',
   'password' => 'root',
   'host' => 'db',
-  'port' => '3306',
-  'driver' => 'mysql',
+  'port' => '5432',
+  'driver' => 'pgsql',
   'prefix' => '',
+  'namespace' => 'Drupal\Core\Database\Driver\pgsql',
   'collation' => 'utf8mb4_general_ci',
 ];
 

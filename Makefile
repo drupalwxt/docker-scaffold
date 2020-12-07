@@ -35,7 +35,7 @@ clean_composer:
 
 clean_docker:
 	rm -rf docker
-	git clone $(DOCKER_REPO) docker
+	git clone --branch 9.x-postgres $(DOCKER_REPO) docker
 	[ "$(shell docker images -q --filter "dangling=true")" = "" ] || docker rmi -f $(shell docker images -q --filter "dangling=true")
 	[ "$(shell docker ps -a -q -f name=${DOCKER_NAME}_)" = "" ] || docker rm -f $(shell docker ps -a -q -f name=${DOCKER_NAME}_)
 	[ "$(shell docker images -q -f reference=${DOCKER_IMAGE}_*)" = "" ] || docker rmi -f $(shell docker images -q -f reference=*${DOCKER_IMAGE}_*)
