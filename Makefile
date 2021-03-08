@@ -41,7 +41,9 @@ clean_docker:
 	[ "$(shell docker images -q -f reference=${DOCKER_IMAGE}_*)" = "" ] || docker rmi -f $(shell docker images -q -f reference=*${DOCKER_IMAGE}_*)
 	[ "$(shell docker images -q -f reference=${NAME})" = "" ] || docker rmi -f $(shell docker images -q -f reference=${NAME})
 
-clean_site: clean_composer clean_docker composer_install base docker_build drupal_install
+clean_drupal: clean_composer composer_install docker_stop docker_start drupal_install
+
+clean_site: clean_composer composer_install clean_docker base docker_build drupal_install
 	./docker/bin/drush cr
 
 composer_install:
@@ -50,6 +52,12 @@ composer_install:
 docker_build:
 	docker-compose build --no-cache
 	docker-compose up -d
+
+docker_start:
+	docker-compose up -d
+
+docker_stop:
+	docker-compose down
 
 drupal_cs:
 	mkdir -p html/core/
