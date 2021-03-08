@@ -1,0 +1,25 @@
+From d824ede5c9709c50174171936cd50979aeced558 Mon Sep 17 00:00:00 2001
+From: William Hearn <sylus1984@gmail.com>
+Date: Sat, 6 Mar 2021 20:20:47 -0500
+Subject: [PATCH] feat(docker): Add custom paths
+
+---
+ Dockerfile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Dockerfile b/Dockerfile
+index 2d96536..9dfb125 100644
+--- a/docker/Dockerfile
++++ b/docker/Dockerfile
+@@ -76,6 +76,8 @@ RUN rm -rf /var/www/*
+ COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
+ COPY composer.json /var/www/composer.json
+ COPY composer.lock /var/www/composer.lock
++# Copy sites directory of custom modules / themes
++COPY html/sites/all/ /var/www/html/sites/all/
+ WORKDIR /var/www
+ RUN apk --update --no-cache add git openssh-client; \
+     mkdir -p /root/.ssh; echo $SSH_PRIVATE_KEY | base64 -d > /root/.ssh/id_rsa; \
+--
+2.21.0 (Apple Git-122)
+

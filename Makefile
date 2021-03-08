@@ -21,7 +21,7 @@ base:
 	    --build-arg GIT_PASSWORD=$(GIT_PASSWORD) .
 
 behat:
-	./docker/bin/behat -vv -c behat.yml --colors
+	./docker/bin/behat -vv -c behat.common.yml --colors
 
 build: all
 
@@ -57,7 +57,7 @@ drupal_cs:
 	cp docker/conf/phpunit.xml html/core/phpunit.xml
 
 drupal_install:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME)
+	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(PROFILE_NAME)
 
 drupal_init:
 	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME)
@@ -133,7 +133,7 @@ release: tag_latest
 tag_latest:
 	docker tag -f $(NAME):$(VERSION) $(NAME):latest
 
-test: phpcs phpunit behat
+test: behat
 
 up:
 	docker-machine start default
