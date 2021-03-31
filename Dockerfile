@@ -28,11 +28,14 @@ RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
-RUN apk add --update --no-cache icu \
+RUN apk add --update --no-cache autoconf \
+                                build-base \
+                                icu \
                                 icu-libs \
-                                libzip-dev; \
+                                libzip-dev \
+                                libmcrypt; \
     \
-    apk add --no-cache --virtual .build-deps icu-dev; \
+    apk add --no-cache --virtual .build-deps libmcrypt-dev icu-dev; \
     \
     docker-php-ext-configure zip \
         --with-zlib-dir=/usr; \
@@ -42,6 +45,8 @@ RUN apk add --update --no-cache icu \
         intl \
         zip; \
     \
+    pecl install mcrypt-1.0.4; \
+    docker-php-ext-enable mcrypt; \
     apk del .build-deps
 
 # Redis
