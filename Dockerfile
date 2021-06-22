@@ -17,7 +17,7 @@ RUN apk --update add --no-cache bash=5.0.17-r0 \
                                 git \
                                 gzip=1.10-r0 \
                                 mysql-client \
-                                patch=2.7.6-r6 \
+                                patch=2.7.6-r7 \
                                 postgresql-client \
                                 ssmtp=2.64-r14 \
                                 zlib-dev=1.2.11-r3
