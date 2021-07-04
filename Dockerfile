@@ -13,14 +13,14 @@ COPY docker/conf/php-fpm/status.conf /usr/local/etc/php-fpm.d/
 HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php-fpm-healthcheck" ]
 
 # Install additional extensions
-RUN apk --update add --no-cache bash=5.0.17-r0 \
+RUN apk --update add --no-cache bash \
                                 git \
-                                gzip=1.10-r0 \
+                                gzip \
                                 mysql-client \
-                                patch=2.7.6-r7 \
+                                patch \
                                 postgresql-client \
-                                ssmtp=2.64-r14 \
-                                zlib-dev=1.2.11-r3
+                                ssmtp \
+                                zlib-dev
 
 COPY docker/conf/ssmtp.conf /etc/ssmtp/ssmtp.conf
 RUN echo "hostname=drupalwxt.github.io" >> /etc/ssmtp/ssmtp.conf
