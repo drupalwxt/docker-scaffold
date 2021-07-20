@@ -43,6 +43,7 @@ RUN apk add --update --no-cache autoconf \
     docker-php-ext-install -j "$(nproc)" \
         bcmath \
         intl \
+        soap \
         zip; \
     \
     pecl install mcrypt-1.0.4; \
