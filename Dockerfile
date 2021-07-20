@@ -34,6 +34,8 @@ RUN apk add --update --no-cache autoconf \
                                 icu-libs \
                                 libzip-dev \
                                 libmcrypt; \
+                                libxml2-dev \
+                                php7-soap \
     \
     apk add --no-cache --virtual .build-deps libmcrypt-dev icu-dev; \
     \
