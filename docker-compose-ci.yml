@@ -12,15 +12,15 @@ services:
         - https_proxy=${HTTP_PROXY}
         - HTTP_PROXY=${HTTP_PROXY}
         - HTTPS_PROXY=${HTTP_PROXY}
-        - NO_PROXY=${NO_PROXY}
-        - no_proxy=${NO_PROXY}
+        - NO_PROXY=hub,${NO_PROXY}
+        - no_proxy=hub,${NO_PROXY}
     environment:
       - http_proxy=${HTTP_PROXY}
       - https_proxy=${HTTP_PROXY}
       - HTTP_PROXY=${HTTP_PROXY}
       - HTTPS_PROXY=${HTTP_PROXY}
-      - NO_PROXY=hub,${NO_PROXY}
-      - no_proxy=hub,${NO_PROXY}
+      - NO_PROXY=${NO_PROXY}
+      - no_proxy=${NO_PROXY}
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - files_data:/var/www/html/sites/default/files
@@ -106,20 +106,28 @@ services:
     container_name: ${DOCKER_NAME}_nginx
 
   hub:
-    image: drupalcomposer/selenium:hub
+    image: selenium/hub:3.141.59
     ports:
       - "4444:4444"
     depends_on:
      - db
      - web
     container_name: ${DOCKER_NAME}_hub
+    environment:
+      - SELENIUM_HUB_HOST=hub
+      - SELENIUM_HUB_PORT=4444
+      - GRID=true
+      - CHROME=false
+      - FIREFOX=false
+      - NOVNC=false
+      - VNC_START=false
 
   firefox:
-    image: drupalcomposer/selenium:node-firefox
+    image: selenium/node-firefox:3.141.59
     depends_on:
-     - db
-     - web
-     - hub
+      - db
+      - web
+      - hub
     container_name: ${DOCKER_NAME}_firefox
 
 volumes:
