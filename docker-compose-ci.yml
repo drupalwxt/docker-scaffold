@@ -113,22 +113,16 @@ services:
      - db
      - web
     container_name: ${DOCKER_NAME}_hub
-    environment:
-      - SELENIUM_HUB_HOST=hub
-      - SELENIUM_HUB_PORT=4444
-      - GRID=true
-      - CHROME=false
-      - FIREFOX=false
-      - NOVNC=false
-      - VNC_START=false
 
   firefox:
-    image: selenium/node-firefox:3.141.59
+    image: selenium/node-firefox:2.53.1
     depends_on:
       - db
       - web
       - hub
     container_name: ${DOCKER_NAME}_firefox
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
 
 volumes:
   db_data:
