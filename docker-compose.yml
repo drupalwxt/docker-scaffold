@@ -2,30 +2,6 @@
 
 version: "2"
 services:
-
-  cli_scripts:
-    build:
-      context: docker/images/ci
-      args:
-        - BASE_IMAGE=${BASE_IMAGE}
-        - http_proxy=${HTTP_PROXY}
-        - https_proxy=${HTTP_PROXY}
-        - HTTP_PROXY=${HTTP_PROXY}
-        - HTTPS_PROXY=${HTTP_PROXY}
-        - NO_PROXY=hub,${NO_PROXY}
-        - no_proxy=hub,${NO_PROXY}
-    environment:
-      - http_proxy=${HTTP_PROXY}
-      - https_proxy=${HTTP_PROXY}
-      - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_PROXY=${HTTP_PROXY}
-      - NO_PROXY=${NO_PROXY}
-      - no_proxy=${NO_PROXY}
-    volumes:
-      - ./:/var/www/html
-      - files_private_data:/var/www/files_private
-    container_name: ${DOCKER_NAME}_web_scripts
-
   web:
     build:
       context: docker/images/dev
@@ -35,8 +11,8 @@ services:
         - https_proxy=${HTTP_PROXY}
         - HTTP_PROXY=${HTTP_PROXY}
         - HTTPS_PROXY=${HTTP_PROXY}
-        - NO_PROXY=${NO_PROXY}
-        - no_proxy=${NO_PROXY}
+        - NO_PROXY=hub,${NO_PROXY}
+        - no_proxy=hub,${NO_PROXY}
     environment:
       - http_proxy=${HTTP_PROXY}
       - https_proxy=${HTTP_PROXY}
@@ -54,14 +30,15 @@ services:
 
   cli:
     build:
-      context: docker/images/cli
+      context: docker/images/ci
       args:
         - BASE_IMAGE=${BASE_IMAGE}
+    entrypoint: ["/bin/sleep", "3650d"]
     environment:
       - http_proxy=${HTTP_PROXY}
       - https_proxy=${HTTP_PROXY}
       - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_proxy=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTP_PROXY}
       - NO_PROXY=hub,${NO_PROXY}
       - no_proxy=hub,${NO_PROXY}
     volumes:
@@ -74,7 +51,7 @@ services:
   db:
     image: postgres:11-alpine
     environment:
-      - POSTGRES_DB=wxt
+      - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
     volumes:
@@ -83,7 +60,25 @@ services:
     ports:
       - "5432:5432"
     container_name: ${DOCKER_NAME}_db
-    command: ["-c", "shared_buffers=512MB", "-c", "max_connections=200", "-c", "work_mem=2048MB", "-c", "effective_cache_size=512MB", "-c", "maintenance_work_mem=32MB", "-c", "min_wal_size=512MB", "-c", "max_wal_size=512MB", "-c", "wal_buffers=8048kB"]
+    command:
+      [
+        "-c",
+        "shared_buffers=512MB",
+        "-c",
+        "max_connections=200",
+        "-c",
+        "work_mem=2048MB",
+        "-c",
+        "effective_cache_size=512MB",
+        "-c",
+        "maintenance_work_mem=32MB",
+        "-c",
+        "min_wal_size=512MB",
+        "-c",
+        "max_wal_size=512MB",
+        "-c",
+        "wal_buffers=8048kB",
+      ]
 
   nginx:
     build:
@@ -94,7 +89,7 @@ services:
       - ./html:/var/www/html
       - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - '80:80'
+      - "80:80"
     depends_on:
       - web
     restart: always
@@ -105,8 +100,8 @@ services:
     ports:
       - "4444:4444"
     depends_on:
-     - db
-     - web
+      - db
+      - web
     container_name: ${DOCKER_NAME}_hub
 
   firefox:

@@ -1,5 +1,5 @@
 # https://github.com/docker-library/drupal/blob/master/8.8/fpm-alpine/Dockerfile
-FROM drupal:9.0-fpm-alpine
+FROM drupal:9.1-fpm-alpine
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
@@ -82,6 +82,7 @@ RUN apk --update --no-cache add git openssh-client; \
     chmod 700 /root/.ssh; chmod 600 /root/.ssh/id_rsa; \
     ssh-keyscan github.com > /root/.ssh/known_hosts; \
     composer install --prefer-dist \
+                     --ignore-platform-reqs \
                      --no-interaction && \
     rm -rf /root/.ssh && \
     apk del openssh-client
