@@ -2,8 +2,7 @@
 
 version: "2"
 services:
-
-  cli_scripts:
+  web:
     build:
       context: docker/images/ci
       args:
@@ -25,30 +24,6 @@ services:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
-    container_name: ${DOCKER_NAME}_web_scripts
-
-  web:
-    build:
-      context: docker/images/ci
-      args:
-        - BASE_IMAGE=${BASE_IMAGE}
-        - http_proxy=${HTTP_PROXY}
-        - https_proxy=${HTTP_PROXY}
-        - HTTP_PROXY=${HTTP_PROXY}
-        - HTTPS_PROXY=${HTTP_PROXY}
-        - NO_PROXY=${NO_PROXY}
-        - no_proxy=${NO_PROXY}
-    environment:
-      - http_proxy=${HTTP_PROXY}
-      - https_proxy=${HTTP_PROXY}
-      - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_PROXY=${HTTP_PROXY}
-      - NO_PROXY=${NO_PROXY}
-      - no_proxy=${NO_PROXY}
-    volumes:
-      - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
-      - files_data:/var/www/html/sites/default/files
-      - files_private_data:/var/www/files_private
     depends_on:
       - db
     ports:
@@ -57,9 +32,10 @@ services:
 
   cli:
     build:
-      context: docker/images/cli
+      context: docker/images/ci
       args:
         - BASE_IMAGE=${BASE_IMAGE}
+    entrypoint: ["/bin/sleep", "3650d"]
     environment:
       - http_proxy=${HTTP_PROXY}
       - https_proxy=${HTTP_PROXY}
@@ -99,7 +75,7 @@ services:
       - files_data:/var/www/html/sites/default/files
       - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - '80:80'
+      - "80:80"
     depends_on:
       - web
     restart: always
@@ -110,8 +86,8 @@ services:
     ports:
       - "4444:4444"
     depends_on:
-     - db
-     - web
+      - db
+      - web
     container_name: ${DOCKER_NAME}_hub
 
   firefox:

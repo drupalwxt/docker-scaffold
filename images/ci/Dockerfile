@@ -7,10 +7,6 @@ COPY php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /var/www
 
-# Install composer dependencies
-# TODO: Determine if this is really needed
-# RUN composer install --prefer-dist --no-interaction
-
 RUN ln -s /var/www/vendor/bin/behat /usr/local/bin/behat; \
     ln -s /var/www/vendor/bin/phpcs /usr/local/bin/phpcs; \
     ln -s /var/www/vendor/bin/phpmd /usr/local/bin/phpmd; \
