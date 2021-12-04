@@ -28,9 +28,16 @@ RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
-RUN apk add --update --no-cache icu \
+RUN apk add --update --no-cache autoconf \
+                                icu \
                                 icu-libs \
                                 libzip-dev; \
+                                libzip-dev \
+                                gcc \
+                                g++ \
+                                make \
+                                libffi-dev \
+                                openssl-dev; \
     \
     apk add --no-cache --virtual .build-deps icu-dev; \
     \
@@ -42,7 +49,17 @@ RUN apk add --update --no-cache icu \
         intl \
         zip; \
     \
+    docker-php-source extract \
+    && pecl install \
+        mysqlnd_azure \
+    && docker-php-ext-enable \
+        mysqlnd_azure \
+    && docker-php-source delete \
+    && mkdir -p /etc/ssl/mysql \
+    \
     apk del .build-deps
+
+COPY docker/certs/BaltimoreCyberTrustRoot.crt.pem /etc/ssl/mysql/BaltimoreCyberTrustRoot.crt.pem
 
 # Redis
 ENV PHPREDIS_VERSION 5.3.2
