@@ -65,29 +65,50 @@ drupal_cs:
 	cp docker/conf/phpunit.xml html/core/phpunit.xml
 
 drupal_install:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME)
+	if [ "$(CI)" ]; then \
+		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+	else \
+		docker-compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+	fi
 
 drupal_init:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME)
+	if [ "$(CI)" ]; then \
+		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
+	else \
+		docker-compose exec cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
+	fi
 
 drupal_export:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"
+	if [ "$(CI)" ]; then \
+		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
+	else \
+		docker-compose exec cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
+	fi
 
 drupal_import:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"
+	if [ "$(CI)" ]; then \
+		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+	else \
+		docker-compose exec cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+	fi
 
 drupal_migrate:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate
+	if [ "$(CI)" ]; then \
+		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate; \
+	else \
+		docker-compose exec cli bash /var/www/docker/bin/cli drupal-migrate; \
+	fi
 
 drupal_perm:
-	docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME)
+	if [ "$(CI)" ]; then \
+		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+	else \
+		docker-compose exec cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+	fi
 
 drush_archive:
 	./docker/bin/drush archive-dump --destination="/var/www/files_private/drupal$$(date +%Y%m%d_%H%M%S).tgz" \
                                   --generator="Drupal"
-
-env:
-	eval $$(docker-machine env default)
 
 export: drupal_export
 
@@ -143,11 +164,6 @@ tag_latest:
 
 test: phpcs phpunit behat
 
-up:
-	docker-machine start default
-	eval $$(docker-machine env default)
-	docker-compose up -d
-
 update: base
 	git pull origin 8.x
 	composer update
@@ -171,7 +187,6 @@ update: base
 	drupal_import \
 	drupal_migrate \
 	drush_archive \
-	env \
 	export \
 	import \
 	lint \
@@ -181,5 +196,4 @@ update: base
 	release \
 	tag_latest \
 	test \
-	up \
 	update
