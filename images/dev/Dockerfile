@@ -36,7 +36,7 @@ RUN phpcs --config-set installed_paths /var/www/vendor/drupal/coder/coder_sniffe
 # Set user 1000 and group staff to www-data.
 # https://github.com/boot2docker/boot2docker/issues/581#issuecomment-114804894
 RUN echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-RUN apk add --update --no-cache shadow@community=4.8.1-r0; \
+RUN apk add --update --no-cache shadow@community; \
     addgroup staff; \
     usermod -u 1000 www-data; \
     usermod -G staff www-data
