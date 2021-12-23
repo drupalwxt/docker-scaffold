@@ -3,9 +3,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Source all the configuration environment variables from the docker-compose
+# .env file.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# Source the site environment variables, also used with docker-compose
-. ${dir}/../../.env
+. ${dir}/source_config
 
 echo "Linting Drupal Dockerfile(s) ..."
 
