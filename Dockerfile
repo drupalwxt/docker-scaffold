@@ -1,5 +1,5 @@
-# https://github.com/docker-library/drupal/blob/master/8.8/fpm-alpine/Dockerfile
-FROM drupal:9.1-fpm-alpine
+# https://github.com/docker-library/drupal/blob/master/9.2/php8.0/fpm-alpine3.15/Dockerfile
+FROM drupal:9.2-fpm-alpine
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
@@ -45,7 +45,7 @@ RUN apk add --update --no-cache icu \
     apk del .build-deps
 
 # Redis
-ENV PHPREDIS_VERSION 5.3.2
+ENV PHPREDIS_VERSION 5.3.6
 RUN mkdir -p /usr/src/php/ext/redis \
     && curl -L https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
     && echo 'redis' >> /usr/src/php-available-exts \
