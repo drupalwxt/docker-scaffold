@@ -27,36 +27,12 @@ RUN echo "hostname=drupalwxt.github.io" >> /etc/ssmtp/ssmtp.conf
 RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
-# Install additional php extensions
-RUN apk add --update --no-cache autoconf \
-                                icu \
-                                icu-libs \
-                                libzip-dev \
-                                gcc \
-                                g++ \
-                                make \
-                                libffi-dev \
-                                openssl-dev; \
-    \
-    apk add --no-cache --virtual .build-deps icu-dev; \
-    \
-    docker-php-ext-configure zip \
-        --with-zlib-dir=/usr; \
-    \
-    docker-php-ext-install -j "$(nproc)" \
-        bcmath \
-        intl \
-        zip; \
-    \
-    docker-php-source extract \
-    && pecl install \
-        mysqlnd_azure \
-    && docker-php-ext-enable \
-        mysqlnd_azure \
-    && docker-php-source delete \
-    && mkdir -p /etc/ssl/mysql \
-    \
-    apk del .build-deps
+# pecl uses pear, so we set the proxy if it exists. (didn't work with pecl).
+RUN if [ "$http_proxy" != "" ]; then pear config-set http_proxy $http_proxy ; fi
+# Install additional php extensions using https://github.com/mlocati/docker-php-extension-installer
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
+    install-php-extensions bcmath intl mysqlnd_azure redis sockets
 
 COPY docker/certs/BaltimoreCyberTrustRoot.crt.pem /etc/ssl/mysql/BaltimoreCyberTrustRoot.crt.pem
 
