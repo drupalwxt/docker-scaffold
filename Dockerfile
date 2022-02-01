@@ -69,7 +69,7 @@ RUN mkdir -p /usr/src/php/ext/redis \
 
 # Composer recommended settings
 ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_VERSION 2.0.11
+ENV COMPOSER_VERSION 2.1.14
 ENV COMPOSER_MEMORY_LIMIT -1
 ENV COMPOSER_EXIT_ON_PATCH_FAILURE 1
 
@@ -86,9 +86,8 @@ RUN php /tmp/composer-setup.php --no-ansi \
     rm -rf /tmp/composer-setup.php
 
 # Install Drupal WxT
-RUN rm -f /var/www/composer.lock; \
-    rm -rf /root/.composer
-RUN rm -rf /var/www/*
+RUN rm -rf /root/.composer && \
+    rm -rf /var/www/*
 COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
 COPY composer.json /var/www/composer.json
 COPY composer.lock /var/www/composer.lock
