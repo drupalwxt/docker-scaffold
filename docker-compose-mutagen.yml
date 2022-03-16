@@ -101,3 +101,4 @@ volumes:
   files_private_data:
   mutagen-cache:
     external: true
+    name: ${MUTAGEN_VOLUME}
