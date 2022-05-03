@@ -91,6 +91,10 @@ RUN rm -rf /root/.composer && \
 COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
 COPY composer.json /var/www/composer.json
 COPY composer.lock /var/www/composer.lock
+
+# Copy local patches folder from repo to www folder
+COPY patches/ /var/www/patches/
+
 WORKDIR /var/www
 RUN apk --update --no-cache add git openssh-client; \
     mkdir -p /root/.ssh; echo $SSH_PRIVATE_KEY | base64 -d > /root/.ssh/id_rsa; \
