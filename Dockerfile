@@ -131,9 +131,9 @@ COPY docker/conf/sshd/sshd_config /etc/ssh/
 
 # Copy and configure the ssh_setup file
 RUN mkdir -p /tmp
-COPY docker/conf/sshd/ssh_setup.sh /tmp
-RUN chmod +x /tmp/ssh_setup.sh \
-    && (sleep 1;/tmp/ssh_setup.sh 2>&1 > /dev/null)
+COPY docker/conf/sshd/sshd_setup.sh /tmp
+RUN chmod +x /tmp/sshd_setup.sh \
+    && (sleep 1;/tmp/sshd_setup.sh 2>&1 > /dev/null)
 
 # Open port 2222 for SSH access
 EXPOSE 80 2222
