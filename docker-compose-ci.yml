@@ -75,7 +75,7 @@ services:
       - files_data:/var/www/html/sites/default/files
       - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - web
     restart: always
@@ -99,6 +99,19 @@ services:
     container_name: ${DOCKER_NAME}_firefox
     environment:
       HUB_PORT_4444_TCP_ADDR: hub
+
+  varnish:
+    build:
+      context: docker/images/varnish
+    volumes:
+      - ./docker/conf/varnish/default.vcl:/etc/varnish/default.vcl:ro
+      - ./docker/conf/varnish/splash.html:/etc/varnish/splash.html:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - nginx
+    restart: always
+    container_name: ${DOCKER_NAME}_varnish
 
 volumes:
   db_data:
