@@ -1,7 +1,7 @@
 diff --git a/Dockerfile b/Dockerfile
 index 411d65c..e4a4d1c 100644
---- a/Dockerfile
-+++ b/Dockerfile
+--- a/docker/Dockerfile
++++ b/docker/Dockerfile
 @@ -92,6 +92,11 @@ RUN rm -rf /var/www/*
  COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
  COPY composer.json /var/www/composer.json
