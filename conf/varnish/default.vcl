@@ -6,7 +6,7 @@ import directors;
 backend nginx {
   .host = "nginx";
   .host_header = "nginx";
-  .port = "8080";
+  .port = "80";
 }
 
 sub vcl_init {
