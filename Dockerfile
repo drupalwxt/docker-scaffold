@@ -1,4 +1,4 @@
-# https://github.com/docker-library/drupal/blob/master/8.8/fpm-alpine/Dockerfile
+# https://github.com/docker-library/drupal/blob/master/7/php7.4/fpm-alpine3.15/Dockerfile
 FROM drupal:7-fpm-alpine3.15
 
 ARG SSH_PRIVATE_KEY
@@ -35,7 +35,12 @@ RUN apk add --update --no-cache autoconf \
                                 libzip-dev \
                                 libmcrypt \
                                 libxml2-dev \
-                                php7-soap; \
+                                php7-soap \
+                                gcc \
+                                g++ \
+                                make \
+                                libffi-dev \
+                                openssl-dev; \
     \
     apk add --no-cache --virtual .build-deps libmcrypt-dev icu-dev; \
     \
@@ -48,9 +53,21 @@ RUN apk add --update --no-cache autoconf \
         soap \
         zip; \
     \
-    pecl install mcrypt-1.0.4; \
-    docker-php-ext-enable mcrypt; \
+    docker-php-source extract \
+    && pecl install \
+        mysqlnd_azure \
+    && docker-php-ext-enable \
+        mysqlnd_azure \
+    && pecl install \
+        mcrypt-1.0.4 \
+    && docker-php-ext-enable \
+        mcrypt \
+    && docker-php-source delete \
+    && mkdir -p /etc/ssl/mysql \
+    \
     apk del .build-deps
+
+COPY docker/certs/BaltimoreCyberTrustRoot.crt.pem /etc/ssl/mysql/BaltimoreCyberTrustRoot.crt.pem
 
 # Redis
 ENV PHPREDIS_VERSION 5.3.2
