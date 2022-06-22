@@ -16,6 +16,10 @@ RUN mkdir -p /etc/nginx
 RUN apk add --no-cache nginx
 RUN mkdir -p /etc/nginx
 
+# Configure cron
+COPY tasks/ /etc/periodic/
+RUN chmod -R +x /etc/periodic/
+
 # Open port 2222 for SSH access
 EXPOSE 80 2222
 ENTRYPOINT ["/etc/ssh/sshd_init.sh"]
