@@ -28,6 +28,7 @@ RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
+# TODO: mysqlnd_azure won't compile in PHP 8.1
 RUN apk add --update --no-cache autoconf \
                                 icu \
                                 icu-libs \
