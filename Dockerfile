@@ -115,3 +115,6 @@ RUN ln -s /var/www/vendor/drush/drush/drush /usr/local/bin/drush
 
 # Reset Cache
 RUN php -r 'opcache_reset();'
+
+# Remove auth.json
+RUN rm -f /var/www/auth.json
