@@ -1,5 +1,5 @@
-# https://github.com/docker-library/drupal/blob/master/9.3/php8.0/fpm-alpine3.15/Dockerfile
-FROM drupal:9.3-fpm-alpine
+# https://github.com/docker-library/drupal/blob/master/9.3/php8.1/fpm-alpine3.16/Dockerfile
+FROM drupal:9.4-fpm-alpine
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
@@ -28,7 +28,6 @@ RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
-# TODO: mysqlnd_azure won't compile in PHP 8.1
 RUN apk add --update --no-cache autoconf \
                                 icu \
                                 icu-libs \
@@ -48,14 +47,6 @@ RUN apk add --update --no-cache autoconf \
         bcmath \
         intl \
         zip; \
-    \
-    docker-php-source extract \
-    && pecl install \
-        mysqlnd_azure \
-    && docker-php-ext-enable \
-        mysqlnd_azure \
-    && docker-php-source delete \
-    && mkdir -p /etc/ssl/mysql \
     \
     apk del .build-deps
 
