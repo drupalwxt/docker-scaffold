@@ -1,4 +1,5 @@
 #!/bin/bash
+source ../.env
 
 # Docroot.
 cd /var/www/html/;
@@ -54,7 +55,7 @@ drupal_install() {
   set -e
   time drush si "${OPTION}" \
     --sites-subdir=default \
-    --db-url=mysql://root:root@db:3306/"${OPTION}" \
+    --db-url=pgsql://root:root@"$DOCKER_NAME"_db:5432/"${OPTION}" \
     --account-name=admin \
     --account-pass=Drupal@2019 \
     --site-mail=admin@example.com \
@@ -63,6 +64,9 @@ drupal_install() {
     install_configure_form.update_status_module='array(FALSE,FALSE)' \
     --yes
   set +e
+
+  echo "\$settings['config_sync_directory'] = '../config/sync';" >> sites/default/settings.php
+  drush config-set wxt_library.settings wxt.theme theme-gcweb --yes
 }
 
 # drupal_export

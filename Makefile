@@ -92,6 +92,23 @@ drupal_import:
 		docker-compose exec cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
 	fi
 
+# Import configuration to existing Drupal install
+#
+# uuid = Site UUID (drush cget system.site uuid)
+# en_uuid = English language UUID (drush cget language.entity.en uuid)
+# shortcut_uuid = Shortcut UUID (drush cget shortcut.set.default uuid)
+# queue_uuid = Entityqueue UUID (drush cget entityqueue.entity_queue.front_page uuid)
+#
+drupal_import_config:
+	./docker/bin/drush cset system.site uuid $(uuid) --yes
+	./docker/bin/drush cset language.entity.en uuid $(en_uuid) --yes
+	./docker/bin/drush cset shortcut.set.default uuid $(shortcut_uuid) --yes
+	./docker/bin/drush cset entityqueue.entity_queue.front_page uuid $(queue_uuid) --yes
+	./docker/bin/drush cr
+	./docker/bin/drush cim -y
+	./docker/bin/drush cr
+	./docker/bin/drush php-eval 'node_access_rebuild();'
+
 drupal_migrate:
 	if [ "$(CI)" ]; then \
 		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate; \
@@ -183,6 +200,7 @@ update: base
 	docker_build \
 	drupal_cs \
 	drupal_export \
+	drupal_import_config \
 	drupal_install \
 	drupal_import \
 	drupal_migrate \
