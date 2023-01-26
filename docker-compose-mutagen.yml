@@ -55,7 +55,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
     volumes:
-      - db_data:/var/lib/postgresql
+      - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     container_name: ${DOCKER_NAME}_db
