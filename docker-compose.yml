@@ -55,7 +55,7 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
     volumes:
-      - db_data:/var/lib/postgresql
+      - db_data:/var/lib/postgresql/data
       - files_private_data:/var/www/files_private
     ports:
       - "5432:5432"
