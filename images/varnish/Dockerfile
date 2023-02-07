@@ -1,9 +1,4 @@
-ARG BASE_IMAGE
-FROM $BASE_IMAGE as src
-
-FROM nginx:alpine
-
-COPY --from=src /var/www/html /var/www/html
+FROM varnish:6.6.2-alpine
 
 # ------------------------
 # SSH Server support
@@ -27,6 +22,6 @@ RUN chmod +x /tmp/sshd_setup.sh \
 COPY conf/sshd/sshd_init.sh /usr/local/bin/
 
 # Open port 2222 for SSH access
-EXPOSE 80 2222
+EXPOSE 80 8443 2222
 ENTRYPOINT ["/usr/local/bin/sshd_init.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+CMD []
