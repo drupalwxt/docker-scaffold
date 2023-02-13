@@ -14,7 +14,7 @@ fi
 
 if [[ "${CI:-}" ]] ; then
   image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}/docker/conf/phpunit.xml:/var/www/html/core/phpunit.xml"
+  vol="${PWD}/docker/drupal/conf/phpunit.xml:/var/www/html/core/phpunit.xml"
 else
   image="${DOCKER_IMAGE}_cli"
   vol="${PWD}:/var/www"
