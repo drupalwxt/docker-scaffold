@@ -61,8 +61,8 @@ docker_stop:
 
 drupal_cs:
 	mkdir -p html/core/
-	cp docker/drupal/conf/phpcs.xml html/core/phpcs.xml
-	cp docker/drupal/conf/phpunit.xml html/core/phpunit.xml
+	cp docker/conf/drupal/phpcs.xml html/core/phpcs.xml
+	cp docker/conf/drupal//phpunit.xml html/core/phpunit.xml
 
 drupal_install:
 	if [ "$(CI)" ]; then \
