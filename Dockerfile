@@ -90,8 +90,8 @@ RUN rm -f /var/www/composer.lock; \
     rm -rf /root/.composer
 RUN rm -rf /var/www/*
 COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
-COPY composer.json /var/www/composer.json
-COPY composer.lock /var/www/composer.lock
+# File phpunit.xml only exists in some sites, so it must be copied with other files and with an "*" to avoid an error when it does not exist.
+COPY composer.json composer.lock phpunit.xml* /var/www/
 # Copy and custom modules and / or themes
 COPY html/modules/custom/ /var/www/html/modules/custom/
 COPY html/themes/custom/ /var/www/html/themes/custom/
