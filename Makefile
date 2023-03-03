@@ -7,6 +7,7 @@ PLATFORM := $(shell uname -s)
 all: base
 
 base:
+	mkdir -p config/sync html/modules/custom html/themes/custom
 	docker build -f docker/Dockerfile \
 	    -t $(NAME):$(VERSION) \
 	    --build-arg SSH_PRIVATE_KEY="$$(test -f $$HOME/.ssh/id_rsa && base64 $$HOME/.ssh/id_rsa)" \
@@ -147,10 +148,12 @@ phpcs: drupal_cs
 
 phpunit:
 	./docker/bin/phpunit --colors=always \
+	    -c /var/www/html/core/phpunit.xml \
 	    --testsuite=kernel \
 	    --group $(PROFILE_NAME)
 
 	./docker/bin/phpunit --colors=always \
+	    -c /var/www/html/core/phpunit.xml \
 	    --testsuite=unit \
 	    --group $(PROFILE_NAME)
 

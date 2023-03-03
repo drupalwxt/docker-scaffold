@@ -14,7 +14,8 @@ fi
 
 if [[ "${CI:-}" ]] ; then
   image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}/docker/conf/phpunit.xml:/var/www/html/core/phpunit.xml"
+  vol="${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php"
+  vol2="-v ${PWD}/docker/conf/phpunit.xml:/var/www/html/core/phpunit.xml"
 else
   image="${DOCKER_IMAGE}_cli"
   vol="${PWD}:/var/www"
@@ -23,8 +24,9 @@ fi
 docker run -i \
   --entrypoint=/var/www/vendor/bin/phpunit \
   -v $vol \
+  $vol2 \
   -v /tmp/:/tmp/ \
-  -w "/var/www/html/core" \
+  -w "/var/www/html" \
   -e "SIMPLETEST_DB=mysql://root:root@db:3306/${DB_NAME}" \
   --sig-proxy=true \
   --pid=host \

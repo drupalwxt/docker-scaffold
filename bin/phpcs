@@ -14,7 +14,8 @@ fi
 
 if [[ "${CI:-}" ]] ; then
   image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}/docker/conf/phpcs.xml:/var/www/html/core/phpcs.xml"
+  vol="${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php"
+  vol2="-v ${PWD}/docker/conf/phpcs.xml:/var/www/html/core/phpcs.xml"
 else
   image="${DOCKER_IMAGE}_cli"
   vol="${PWD}:/var/www"
@@ -24,6 +25,7 @@ if [[ "${JETBRAINS_REMOTE_RUN:-}" ]] ; then
   docker run -i \
     --entrypoint=/var/www/vendor/bin/phpcs \
     -v $vol \
+    $vol2 \
     -v /tmp/:/tmp/ \
     -v "${HOME}/.phpstorm_helpers/":"${HOME}/.phpstorm_helpers/" \
     --sig-proxy=true \
@@ -35,6 +37,7 @@ else
   docker run -i \
     --entrypoint=/var/www/vendor/bin/phpcs \
     -v $vol \
+    $vol2 \
     -v /tmp/:/tmp/ \
     --sig-proxy=true \
     --pid=host \
