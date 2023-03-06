@@ -40,19 +40,34 @@ services:
       - http_proxy=${HTTP_PROXY}
       - https_proxy=${HTTP_PROXY}
       - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_proxy=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTP_PROXY}
       - NO_PROXY=hub,${NO_PROXY}
       - no_proxy=hub,${NO_PROXY}
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - ./docker/conf/drupal/default.settings.php:/var/www/html/sites/default/default.settings.php:ro
+      - ./docker/bin:/var/www/docker/bin
       - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
-      - ./docker/bin:/var/www/docker/bin
     depends_on:
       - db
       - web
     container_name: ${DOCKER_NAME}_cli
+
+  nginx:
+    build:
+      context: docker/images/nginx
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    volumes:
+      - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - files_data:/var/www/html/sites/default/files
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    restart: always
+    container_name: ${DOCKER_NAME}_nginx
 
   db:
     image: mysql:8.0
@@ -61,25 +76,11 @@ services:
       - MYSQL_DATABASE=${DB_NAME}
     volumes:
       - db_data:/var/lib/mysql
+      - files_private_data:/var/www/files_private
     ports:
       - "3308:3306"
     container_name: ${DOCKER_NAME}_db
     command: mysqld --max_allowed_packet=32M
-
-  nginx:
-    build:
-      context: docker/images/nginx
-      args:
-        - BASE_IMAGE=${BASE_IMAGE}
-    volumes:
-      - files_data:/var/www/html/sites/default/files
-      - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
-    depends_on:
-      - web
-    restart: always
-    container_name: ${DOCKER_NAME}_nginx
 
   hub:
     image: selenium/hub:3.141.59
@@ -89,16 +90,18 @@ services:
       - db
       - web
     container_name: ${DOCKER_NAME}_hub
+    platform: linux/amd64
 
   firefox:
     image: selenium/node-firefox:2.53.1
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
     depends_on:
       - db
       - web
       - hub
     container_name: ${DOCKER_NAME}_firefox
-    environment:
-      HUB_PORT_4444_TCP_ADDR: hub
+    platform: linux/amd64
 
 volumes:
   db_data:

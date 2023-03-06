@@ -7,6 +7,7 @@ PLATFORM := $(shell uname -s)
 all: base
 
 base:
+	mkdir -p config/sync html/modules/custom html/themes/custom
 	docker build -f docker/Dockerfile \
 	    -t $(NAME):$(VERSION) \
 	    --build-arg SSH_PRIVATE_KEY="$$(test -f $$HOME/.ssh/id_rsa && base64 $$HOME/.ssh/id_rsa)" \
@@ -50,14 +51,14 @@ composer_install:
 	composer install
 
 docker_build:
-	docker-compose build --no-cache
-	docker-compose up -d
+	docker compose build --no-cache
+	docker compose up -d
 
 docker_start:
-	docker-compose up -d
+	docker compose up -d
 
 docker_stop:
-	docker-compose down
+	docker compose down
 
 drupal_cs:
 	mkdir -p html/core/
@@ -66,44 +67,44 @@ drupal_cs:
 
 drupal_install:
 	if [ "$(CI)" ]; then \
-		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
 	else \
-		docker-compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
 	fi
 
 drupal_init:
 	if [ "$(CI)" ]; then \
-		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
 	else \
-		docker-compose exec cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
 	fi
 
 drupal_export:
 	if [ "$(CI)" ]; then \
-		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
 	else \
-		docker-compose exec cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
 	fi
 
 drupal_import:
 	if [ "$(CI)" ]; then \
-		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
 	else \
-		docker-compose exec cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
 	fi
 
 drupal_migrate:
 	if [ "$(CI)" ]; then \
-		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate; \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate; \
 	else \
-		docker-compose exec cli bash /var/www/docker/bin/cli drupal-migrate; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-migrate; \
 	fi
 
 drupal_perm:
 	if [ "$(CI)" ]; then \
-		docker-compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
 	else \
-		docker-compose exec cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
 	fi
 
 drush_archive:
@@ -147,10 +148,12 @@ phpcs: drupal_cs
 
 phpunit:
 	./docker/bin/phpunit --colors=always \
+	    -c /var/www/html/core/phpunit.xml \
 	    --testsuite=kernel \
 	    --group $(PROFILE_NAME)
 
 	./docker/bin/phpunit --colors=always \
+	    -c /var/www/html/core/phpunit.xml \
 	    --testsuite=unit \
 	    --group $(PROFILE_NAME)
 
@@ -167,8 +170,8 @@ test: phpcs phpunit behat
 update: base
 	git pull origin 8.x
 	composer update
-	docker-compose build --no-cache
-	docker-compose up -d
+	docker compose build --no-cache
+	docker compose up -d
 
 .PHONY: \
 	all \

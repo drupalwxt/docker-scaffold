@@ -2,8 +2,7 @@
 # strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-# Source all the configuration environment variables from the docker-compose
-# .env file.
+# Source all the configuration environment variables from the .env file.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . ${dir}/source_config
 
@@ -13,31 +12,20 @@ if ! type docker > /dev/null; then
 fi
 
 if [[ "${CI:-}" ]] ; then
-  image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}/docker/conf/drupal/phpcs.xml:/var/www/html/core/phpcs.xml"
+  vol="-v ${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php \
+       -v /tmp:/tmp/ \
+       -v ${PWD}/docker/conf/phpcs.xml:/var/www/html/core/phpcs.xml"
 else
-  image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}:/var/www"
+  vol="-v ${PWD}:/var/www \
+       -v /tmp:/tmp/"
 fi
 
-if [[ "${JETBRAINS_REMOTE_RUN:-}" ]] ; then
-  docker run -i \
-    --entrypoint=/var/www/vendor/bin/phpcs \
-    -v $vol \
-    -v /tmp/:/tmp/ \
-    -v "${HOME}/.phpstorm_helpers/":"${HOME}/.phpstorm_helpers/" \
-    --sig-proxy=true \
-    --pid=host \
-    --volumes-from "${DOCKER_NAME}_web" \
-    --rm \
-    "${image}" "$@"
-else
-  docker run -i \
-    --entrypoint=/var/www/vendor/bin/phpcs \
-    -v $vol \
-    -v /tmp/:/tmp/ \
-    --sig-proxy=true \
-    --pid=host \
-    --rm \
-    "${image}" "$@"
-fi
+docker run -i \
+  --entrypoint=/var/www/vendor/bin/phpcs \
+  ${vol} \
+  --sig-proxy=true \
+  --pid=host \
+  --volumes-from "${DOCKER_NAME}_web" \
+  --net "${DOCKER_IMAGE}_default" \
+  --rm \
+  "${DOCKER_IMAGE}-cli" "$@"

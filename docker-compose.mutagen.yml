@@ -9,22 +9,22 @@ services:
     build:
       context: docker/images/dev
     volumes:
-      - .:/var/www
+      - mutagen-cache:/var/www
 
   cli:
     extends:
       file: docker-compose.base.yml
       service: cli
     volumes:
-      - ./:/var/www
+      - mutagen-cache:/var/www
 
   nginx:
     extends:
       file: docker-compose.base.yml
       service: nginx
     volumes:
-      - ./html:/var/www/html
       - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - mutagen-cache:/var/www
 
   db:
     extends:
@@ -45,3 +45,6 @@ volumes:
   db_data:
   files_data:
   files_private_data:
+  mutagen-cache:
+    external: true
+    name: ${MUTAGEN_VOLUME}

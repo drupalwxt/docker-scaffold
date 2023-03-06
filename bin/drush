@@ -2,8 +2,7 @@
 # strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-# Source all the configuration environment variables from the docker-compose
-# .env file.
+# Source all the configuration environment variables from the .env file.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . ${dir}/source_config
 
@@ -13,9 +12,11 @@ if ! type docker > /dev/null; then
 fi
 
 if [[ "${CI:-}" ]] ; then
-  image="${DOCKER_IMAGE}_cli"
+  vol="-v ${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php \
+       -v /tmp:/tmp/"
 else
-  image="${DOCKER_IMAGE}_cli"
+  vol="-v ${PWD}:/var/www \
+       -v /tmp:/tmp/"
 fi
 
 if [ -z "${HTTP_PROXY-}" ]; then
@@ -26,10 +27,9 @@ if [ -z "${NO_PROXY-}" ]; then
   NO_PROXY=''
 fi
 
-docker run -it \
-  --entrypoint=drush \
-  -v "${PWD}":"${PWD}" \
-  -v /tmp/:/tmp/ \
+docker run -i \
+  --entrypoint=/var/www/vendor/drush/drush/drush \
+  ${vol} \
   -w "/var/www/html" \
   -e HTTP_PROXY=$HTTP_PROXY \
   -e HTTPS_PROXY=$HTTP_PROXY \
@@ -42,4 +42,4 @@ docker run -it \
   --volumes-from "${DOCKER_NAME}_web" \
   --net "${DOCKER_IMAGE}_default" \
   --rm \
-  "${image}" "$@"
+  "${DOCKER_IMAGE}-cli" "$@"

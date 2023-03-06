@@ -4,5 +4,5 @@ set -euo pipefail
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Source the site environment variables, also used with docker-compose
+# Source all the configuration environment variables from the .env file.
 . ${dir}/../../.env
