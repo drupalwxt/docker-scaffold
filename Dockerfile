@@ -82,9 +82,15 @@ RUN rm -f /var/www/composer.lock; \
     rm -rf /root/.composer
 RUN rm -rf /var/www/*
 COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
-COPY composer.json /var/www/composer.json
-COPY composer.lock /var/www/composer.lock
+COPY composer.json composer.lock /var/www/
+# Copy possible custom modules and custom themes
+COPY html/modules/custom/ /var/www/html/modules/custom/
+COPY html/themes/custom/ /var/www/html/themes/custom/
+# Copy possible config/sync and other config
+COPY config/ /var/www/config/
+
 WORKDIR /var/www
+
 RUN apk --update --no-cache add git openssh-client; \
     mkdir -p /root/.ssh; echo $SSH_PRIVATE_KEY | base64 -d > /root/.ssh/id_rsa; \
     chmod 700 /root/.ssh; chmod 600 /root/.ssh/id_rsa; \

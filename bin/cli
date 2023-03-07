@@ -56,7 +56,7 @@ drupal_install() {
     --sites-subdir=default \
     --db-url=mysql://root:root@db:3306/"${OPTION}" \
     --account-name=admin \
-    --account-pass=Drupal@2019 \
+    --account-pass=Drupal@2023 \
     --site-mail=admin@example.com \
     --site-name="Drupal Install Profile (${OPTION})" \
     wxt_extension_configure_form.select_all='TRUE' \

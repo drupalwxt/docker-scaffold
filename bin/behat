@@ -2,8 +2,7 @@
 # strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-# Source all the configuration environment variables from the docker-compose
-# .env file.
+# Source all the configuration environment variables from the .env file.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . ${dir}/source_config
 
@@ -17,12 +16,12 @@ if [ -z "${BEHAT_PATH-}" ]; then
   exit
 fi
 
-image="${DOCKER_IMAGE}_cli"
-network="${DOCKER_IMAGE}_default"
 if [[ "${CI:-}" ]] ; then
-  vol="${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php"
+  vol="-v ${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php \
+       -v /tmp:/tmp/"
 else
-  vol="${PWD}:/var/www"
+  vol="-v ${PWD}:/var/www \
+       -v /tmp:/tmp/"
 fi
 
 if [ -z "${HTTP_PROXY-}" ]; then
@@ -34,12 +33,8 @@ if [ -z "${NO_PROXY-}" ]; then
 fi
 
 docker run -i \
-  -e "IDE_BEHAT_VERSION=3.2.2" \
-  -e "IDE_BEHAT_DIR=/var/www/vendor/behat/behat/bin/behat" \
   --entrypoint=/var/www/vendor/bin/behat \
-  -v ${vol} \
-  -v ${PWD}/html/failures/behat/screenshots:/var/www/html/failures/behat/screenshots \
-  -v /tmp/:/tmp/ \
+  ${vol} \
   -w "/var/www/html/${BEHAT_PATH}" \
   -e HTTP_PROXY=$HTTP_PROXY \
   -e HTTPS_PROXY=$HTTP_PROXY \
@@ -50,6 +45,7 @@ docker run -i \
   -e BEHAT_PARAMS='{"extensions":{"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/var/www/html"}, "drush":{"root":"/var/www/html"}}, "Behat\\MinkExtension":{"base_url" : "http://nginx", "selenium2":{"wd_host":"http://hub:4444/wd/hub"}}}}' \
   --sig-proxy=true \
   --pid=host \
-  --net "${network}" \
+  --volumes-from "${DOCKER_NAME}_web" \
+  --net "${DOCKER_IMAGE}_default" \
   --rm \
-  "${image}" "$@"
+  "${DOCKER_IMAGE}-cli" "$@"

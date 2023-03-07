@@ -2,8 +2,7 @@
 # strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-# Source all the configuration environment variables from the docker-compose
-# .env file.
+# Source all the configuration environment variables from the .env file.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . ${dir}/source_config
 
@@ -13,21 +12,22 @@ if ! type docker > /dev/null; then
 fi
 
 if [[ "${CI:-}" ]] ; then
-  image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}/docker/conf/drupal/phpunit.xml:/var/www/html/core/phpunit.xml"
+  vol="-v ${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php \
+       -v /tmp:/tmp/ \
+       -v ${PWD}/docker/conf/drupal/phpunit.xml:/var/www/html/core/phpunit.xml"
 else
-  image="${DOCKER_IMAGE}_cli"
-  vol="${PWD}:/var/www"
+  vol="-v ${PWD}:/var/www \
+       -v /tmp:/tmp/"
 fi
 
 docker run -i \
   --entrypoint=/var/www/vendor/bin/phpunit \
-  -v $vol \
-  -v /tmp/:/tmp/ \
-  -w "/var/www/html/core" \
+  ${vol} \
+  -w "/var/www/html" \
   -e "SIMPLETEST_DB=mysql://root:root@db:3306/${DB_NAME}" \
   --sig-proxy=true \
   --pid=host \
+  --volumes-from "${DOCKER_NAME}_web" \
   --net "${DOCKER_IMAGE}_default" \
   --rm \
-  "${image}" "$@"
+  "${DOCKER_IMAGE}-cli" "$@"

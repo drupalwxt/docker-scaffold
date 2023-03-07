@@ -2,8 +2,7 @@
 # strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -euo pipefail
 
-# Source all the configuration environment variables from the docker-compose
-# .env file.
+# Source all the configuration environment variables from the .env file.
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . ${dir}/source_config
 
@@ -13,17 +12,19 @@ if ! type docker > /dev/null; then
 fi
 
 if [[ "${CI:-}" ]] ; then
-  image="${DOCKER_IMAGE}_cli"
+  vol="-v ${PWD}/docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php \
+       -v /tmp:/tmp/"
 else
-  image="${DOCKER_IMAGE}_cli"
+  vol="-v ${PWD}:/var/www \
+       -v /tmp:/tmp/"
 fi
 
 docker run -i \
   --entrypoint=/var/www/vendor/bin/phpmd \
-  -v "${PWD}":"${PWD}" \
-  -v /tmp/:/tmp/ \
+  ${vol} \
   --sig-proxy=true \
   --pid=host \
   --volumes-from "${DOCKER_NAME}_web" \
+  --net "${DOCKER_IMAGE}_default" \
   --rm \
-  "${image}" "$@"
+  "${DOCKER_IMAGE}-cli" "$@"
