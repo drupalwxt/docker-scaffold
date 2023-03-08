@@ -52,6 +52,9 @@ drupal_install() {
   header Install Drupal distribution
   # We will let bash manage errors with set -e (errexit)
   set -e
+
+  sleep 15
+
   time drush si "${OPTION}" \
     --sites-subdir=default \
     --db-url=mysql://root:root@db:3306/"${OPTION}" \
