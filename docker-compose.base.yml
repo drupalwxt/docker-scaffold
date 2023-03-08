@@ -7,19 +7,19 @@ services:
       context: docker/images/ci
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-        - http_proxy=${HTTP_PROXY}
-        - https_proxy=${HTTP_PROXY}
-        - HTTP_PROXY=${HTTP_PROXY}
-        - HTTPS_PROXY=${HTTP_PROXY}
-        - NO_PROXY=hub,${NO_PROXY}
-        - no_proxy=hub,${NO_PROXY}
+        - http_proxy=${HTTP_PROXY:-}
+        - https_proxy=${HTTP_PROXY:-}
+        - HTTP_PROXY=${HTTP_PROXY:-}
+        - HTTPS_PROXY=${HTTP_PROXY:-}
+        - NO_PROXY=hub,${NO_PROXY:-}
+        - no_proxy=hub,${NO_PROXY:-}
     environment:
-      - http_proxy=${HTTP_PROXY}
-      - https_proxy=${HTTP_PROXY}
-      - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_PROXY=${HTTP_PROXY}
-      - NO_PROXY=${NO_PROXY}
-      - no_proxy=${NO_PROXY}
+      - http_proxy=${HTTP_PROXY:-}
+      - https_proxy=${HTTP_PROXY:-}
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTP_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-}
+      - no_proxy=${NO_PROXY:-}
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - files_data:/var/www/html/sites/default/files
@@ -37,12 +37,12 @@ services:
         - BASE_IMAGE=${BASE_IMAGE}
     entrypoint: ["/bin/sleep", "3650d"]
     environment:
-      - http_proxy=${HTTP_PROXY}
-      - https_proxy=${HTTP_PROXY}
-      - HTTP_PROXY=${HTTP_PROXY}
-      - HTTPS_PROXY=${HTTP_PROXY}
-      - NO_PROXY=hub,${NO_PROXY}
-      - no_proxy=hub,${NO_PROXY}
+      - http_proxy=${HTTP_PROXY:-}
+      - https_proxy=${HTTP_PROXY:-}
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTP_PROXY:-}
+      - NO_PROXY=hub,${NO_PROXY:-}
+      - no_proxy=hub,${NO_PROXY:-}
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - ./docker/conf/drupal/default.settings.php:/var/www/html/sites/default/default.settings.php:ro
