@@ -79,20 +79,6 @@ drupal_init:
 		docker compose exec cli bash /var/www/docker/bin/cli drupal-init $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	fi
 
-drupal_import:
-	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-import $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
-	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-import $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
-	fi
-
-drupal_export:
-	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
-	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-export $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
-	fi
-
 drupal_migrate:
 	if [ "$(CI)" ]; then \
 		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate; \
