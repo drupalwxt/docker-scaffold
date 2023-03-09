@@ -67,30 +67,30 @@ drupal_cs:
 
 drupal_install:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	fi
 
 drupal_init:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
-	fi
-
-drupal_export:
-	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
-	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-init $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	fi
 
 drupal_import:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-import $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-import $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
+	fi
+
+drupal_export:
+	if [ "$(CI)" ]; then \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
+	else \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-export $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	fi
 
 drupal_migrate:
@@ -102,9 +102,9 @@ drupal_migrate:
 
 drupal_perm:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-perm $(DB_NAME) $(DB_TYPE) $(PROFILE_NAME); \
 	fi
 
 drush_archive:

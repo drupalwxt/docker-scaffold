@@ -20,7 +20,7 @@ services:
   db:
     extends:
       file: docker-compose.base.yml
-      service: db
+      service: ${DB_TYPE:-mysql}
 
   hub:
     extends:

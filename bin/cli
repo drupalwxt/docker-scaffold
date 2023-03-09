@@ -9,13 +9,11 @@ if [[ $# -eq 0 ]]; then
 fi
 
 COMMAND=$1
-OPTION=$2
-NFS=$3
+DB_NAME="${2:-wxt}"
+DB_TYPE="${3:-mysql}"
+PROFILE_NAME="${4:-standard}"
+NFS=$5
 EXIT_VALUE=0
-
-if [ -z "${OPTION-}" ]; then
-  OPTION='standard'
-fi
 
 ##
 # SCRIPT COMMANDS
@@ -28,7 +26,6 @@ fi
 drupal_init() {
   header Configure the initial Drupal f.s.
 
-  # Set the default settings.php
   chmod 777 /var/www/html/sites/default
 
   if [ -f /var/www/html/sites/default/settings.php ]; then
@@ -55,64 +52,28 @@ drupal_install() {
 
   sleep 15
 
-  time drush si "${OPTION}" \
+  if [[ "$DB_TYPE" == "postgresql" ]]; then
+    DB_CONNECTION="pgsql://root:root@db:5432"
+  else
+    DB_CONNECTION="mysql://root:root@db:3306"
+  fi
+
+  time drush si "${PROFILE_NAME}" \
     --sites-subdir=default \
-    --db-url=mysql://root:root@db:3306/"${OPTION}" \
+    --db-url="${DB_CONNECTION}"/"${DB_NAME}" \
     --account-name=admin \
-    --account-pass=Drupal@2023 \
+    --account-pass=Drupal@`date +'%Y'` \
     --site-mail=admin@example.com \
-    --site-name="Drupal Install Profile (${OPTION})" \
+    --site-name="Drupal Install Profile (${PROFILE_NAME})" \
     wxt_extension_configure_form.select_all='TRUE' \
     install_configure_form.update_status_module='array(FALSE,FALSE)' \
     --yes
   set +e
 }
 
-# drupal_export
-#
-# Exports Drupal site.
-#
-drupal_export() {
-  header Exports Drupal site
-
-  DATABASE_BACKUP=$1
-
-  cd /db
-  tar -xzvf "${DATABASE_BACKUP}"
-  export sql=$(ls -t *.sql | head -1)
-  cd /var/www/html/sites/default
-  drush sql-cli < "/db/${sql}"
-  rm "/db/${sql}" "/db/${DATABASE_BACKUP}"
-  echo "SHOW TABLES LIKE 'cache%'" | drush sql-cli | tail -n +2 | xargs -n1 -I% echo "TRUNCATE TABLE %;" | drush sql-cli
-  drush cr
-  drush updatedb
-  drush cr
-}
-
-# drupal_import
-#
-# Imports Drupal site.
-#
-drupal_import() {
-  header Import Drupal site
-
-  DATABASE_BACKUP=$1
-
-  cd /db
-  tar -xzvf "${DATABASE_BACKUP}"
-  export sql=$(ls -t *.sql | head -1)
-  cd /var/www/html/sites/default
-  drush sql-cli < "/db/${sql}"
-  rm "/db/${sql}" "/db/${DATABASE_BACKUP}"
-  echo "SHOW TABLES LIKE 'cache%'" | drush sql-cli | tail -n +2 | xargs -n1 -I% echo "TRUNCATE TABLE %;" | drush sql-cli
-  drush cr
-  drush updatedb
-  drush cr
-}
-
 # drupal_migrate
 #
-# Initialize migrate + default content.
+# Initialize migrate along with default content.
 #
 drupal_migrate() {
   header Initialize migrate and default content
@@ -135,11 +96,11 @@ drupal_perm() {
   fi
 
   php -r 'opcache_reset();';
+
   sleep 5
 
   chmod 444 sites/default/settings.php
 
-  # Create private files directory.
   if [ ! -d /var/www/files_private ]; then
     mkdir /var/www/files_private;
   fi
@@ -208,14 +169,6 @@ case $COMMAND in
 
   drupal-init)
     run_command drupal_init
-    ;;
-
-  drupal-export)
-    run_command drupal_export "$3"
-    ;;
-
-  drupal-import)
-    run_command drupal_import "$3"
     ;;
 
   drupal-install)
