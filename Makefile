@@ -4,6 +4,11 @@ NAME := $(or $(BASE_IMAGE),$(BASE_IMAGE),drupalwxt/site-wxt)
 VERSION := $(or $(VERSION),$(VERSION),'latest')
 PLATFORM := $(shell uname -s)
 
+DB_NAME := $(or $(DB_NAME),$(DB_NAME),'wxt')
+DB_TYPE := $(or $(DB_TYPE),$(DB_TYPE),'mysql')
+DB_PORT := $(or $(DB_PORT),$(DB_PORT),'3306')
+PROFILE_NAME := $(or $(PROFILE_NAME),$(PROFILE_NAME),'wxt')
+
 all: base
 
 base:
@@ -67,53 +72,35 @@ drupal_cs:
 
 drupal_install:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-first-run $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	fi
 
 drupal_init:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-init $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-init $(PROFILE_NAME); \
-	fi
-
-drupal_export:
-	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
-	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-export $(PROFILE_NAME) "${DATABASE_BACKUP}"; \
-	fi
-
-drupal_import:
-	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
-	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-import wxt "${DATABASE_BACKUP}"; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-init $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	fi
 
 drupal_migrate:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate; \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-migrate $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-migrate; \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-migrate $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	fi
 
 drupal_perm:
 	if [ "$(CI)" ]; then \
-		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+		docker compose exec -T cli bash /var/www/docker/bin/cli drupal-perm $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	else \
-		docker compose exec cli bash /var/www/docker/bin/cli drupal-perm $(PROFILE_NAME); \
+		docker compose exec cli bash /var/www/docker/bin/cli drupal-perm $(DB_NAME) $(DB_TYPE) $(DB_PORT) $(PROFILE_NAME); \
 	fi
 
 drush_archive:
 	./docker/bin/drush archive-dump --destination="/var/www/files_private/drupal$$(date +%Y%m%d_%H%M%S).tgz" \
                                   --generator="Drupal"
-
-export: drupal_export
-
-import: drupal_init drupal_perm drupal_import
 
 lint:
 	./docker/bin/lint
@@ -185,13 +172,9 @@ update: base
 	composer_install \
 	docker_build \
 	drupal_cs \
-	drupal_export \
 	drupal_install \
-	drupal_import \
 	drupal_migrate \
 	drush_archive \
-	export \
-	import \
 	lint \
 	list \
 	phpcs \

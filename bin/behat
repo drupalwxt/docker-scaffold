@@ -24,13 +24,11 @@ else
        -v /tmp:/tmp/"
 fi
 
-if [ -z "${HTTP_PROXY-}" ]; then
-  HTTP_PROXY=''
-fi
-
-if [ -z "${NO_PROXY-}" ]; then
-  NO_PROXY=''
-fi
+HTTP_PROXY="${HTTP_PROXY:-}"
+NO_PROXY="${NO_PROXY:-}"
+DB_TYPE="${DB_TYPE:-mysql}"
+DB_PORT="${DB_PORT:-3306}"
+DB_NAME="${DB_NAME:-wxt}"
 
 docker run -i \
   --entrypoint=/var/www/vendor/bin/behat \
@@ -43,6 +41,9 @@ docker run -i \
   -e NO_PROXY=hub,$NO_PROXY \
   -e no_proxy=hub,$NO_PROXY \
   -e BEHAT_PARAMS='{"extensions":{"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/var/www/html"}, "drush":{"root":"/var/www/html"}}, "Behat\\MinkExtension":{"base_url" : "http://nginx", "selenium2":{"wd_host":"http://hub:4444/wd/hub"}}}}' \
+  -e DB_TYPE=$DB_TYPE \
+  -e DB_PORT=$DB_PORT \
+  -e DB_NAME=$DB_NAME \
   --sig-proxy=true \
   --pid=host \
   --volumes-from "${DOCKER_NAME}_web" \

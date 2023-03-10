@@ -89,13 +89,14 @@
  * @endcode
  */
 $databases['default']['default'] = [
-  'database' => 'wxt',
+  'database' => getenv('DB_NAME') ?: 'wxt',
   'username' => 'root',
   'password' => 'root',
   'host' => 'db',
-  'port' => '3306',
-  'driver' => 'mysql',
+  'port' => getenv('DB_PORT') ?: '3306',
+  'driver' => getenv('DB_TYPE') ?: 'mysql',
   'prefix' => '',
+  'namespace' => 'Drupal\Core\Database\Driver\\'.getenv('DB_TYPE') ?: 'mysql',
   'collation' => 'utf8mb4_general_ci',
 ];
 

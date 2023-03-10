@@ -20,12 +20,17 @@ services:
       - HTTPS_PROXY=${HTTP_PROXY:-}
       - NO_PROXY=${NO_PROXY:-}
       - no_proxy=${NO_PROXY:-}
+      - DB_TYPE=${DB_TYPE:-mysql}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-wxt}
+    env_file: .env
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "9000"
     container_name: ${DOCKER_NAME}_web
@@ -43,6 +48,10 @@ services:
       - HTTPS_PROXY=${HTTP_PROXY:-}
       - NO_PROXY=hub,${NO_PROXY:-}
       - no_proxy=hub,${NO_PROXY:-}
+      - DB_TYPE=${DB_TYPE:-mysql}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-wxt}
+    env_file: .env
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
       - ./docker/conf/drupal/default.settings.php:/var/www/html/sites/default/default.settings.php:ro
@@ -50,8 +59,8 @@ services:
       - files_data:/var/www/html/sites/default/files
       - files_private_data:/var/www/files_private
     depends_on:
-      - db
-      - web
+      web:
+        condition: service_started
     container_name: ${DOCKER_NAME}_cli
 
   nginx:
@@ -62,14 +71,16 @@ services:
     volumes:
       - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - files_data:/var/www/html/sites/default/files
+    env_file: .env
+    depends_on:
+      web:
+        condition: service_started
+    restart: always
     ports:
       - "80:80"
-    depends_on:
-      - web
-    restart: always
     container_name: ${DOCKER_NAME}_nginx
 
-  db:
+  mysql:
     image: mysql:8.0
     environment:
       - MYSQL_ROOT_PASSWORD=root
@@ -81,14 +92,59 @@ services:
       - "3308:3306"
     container_name: ${DOCKER_NAME}_db
     command: mysqld --max_allowed_packet=32M
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+
+  pgsql:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - files_private_data:/var/www/files_private
+    ports:
+      - "5432:5432"
+    container_name: ${DOCKER_NAME}_db
+    command:
+      [
+        "-c",
+        "shared_buffers=512MB",
+        "-c",
+        "max_connections=200",
+        "-c",
+        "work_mem=2048MB",
+        "-c",
+        "effective_cache_size=512MB",
+        "-c",
+        "maintenance_work_mem=32MB",
+        "-c",
+        "min_wal_size=512MB",
+        "-c",
+        "max_wal_size=512MB",
+        "-c",
+        "wal_buffers=8048kB",
+      ]
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DB_NAME}", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
 
   hub:
     image: selenium/hub:3.141.59
     ports:
       - "4444:4444"
     depends_on:
-      - db
-      - web
+      db:
+        condition: service_healthy
+      web:
+        condition: service_started
     container_name: ${DOCKER_NAME}_hub
     platform: linux/amd64
 
@@ -97,9 +153,12 @@ services:
     environment:
       HUB_PORT_4444_TCP_ADDR: hub
     depends_on:
-      - db
-      - web
-      - hub
+      db:
+        condition: service_healthy
+      web:
+        condition: service_started
+      hub:
+        condition: service_started
     container_name: ${DOCKER_NAME}_firefox
     platform: linux/amd64
 

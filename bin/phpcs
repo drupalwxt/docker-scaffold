@@ -20,9 +20,16 @@ else
        -v /tmp:/tmp/"
 fi
 
+DB_TYPE="${DB_TYPE:-mysql}"
+DB_PORT="${DB_PORT:-3306}"
+DB_NAME="${DB_NAME:-wxt}"
+
 docker run -i \
   --entrypoint=/var/www/vendor/bin/phpcs \
   ${vol} \
+  -e DB_TYPE=$DB_TYPE \
+  -e DB_PORT=$DB_PORT \
+  -e DB_NAME=$DB_NAME \
   --sig-proxy=true \
   --pid=host \
   --volumes-from "${DOCKER_NAME}_web" \

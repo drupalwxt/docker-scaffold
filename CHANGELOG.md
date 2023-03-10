@@ -13,3 +13,6 @@
 - Please take not that docker images now using hyphens instead of underscores
 
 > "${DOCKER_IMAGE}_cli" in the `bin` folder now is called "${DOCKER_IMAGE}-cli"
+
+- The `settings.php` is no longer hardcoded and uses getenv for most parameters
+- The $DB_TYPE environment variable now controls which database is used
