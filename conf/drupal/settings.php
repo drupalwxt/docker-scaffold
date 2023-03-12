@@ -245,7 +245,7 @@ $databases['default']['default'] = [
  * directory in the public files path. The setting below allows you to set
  * its location.
  */
-$settings["config_sync_directory"] = 'sites/default/files/config/sync';
+$settings["config_sync_directory"] = '/var/www/config';
 
 /**
  * Settings:
