@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 10.0.x
+
+- TBD
+
 ## 9.5.x
 
 - Instead of running `docker-compose` you must now call `docker compose`
