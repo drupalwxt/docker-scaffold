@@ -106,7 +106,7 @@ services:
       - POSTGRES_PASSWORD=root
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - ./docker/conf/postgresql/load-extensions.sh:/docker-entrypoint-initdb.d
+      - ./docker/conf/postgresql/load-extensions.sh:/docker-entrypoint-initdb.d/load-extensions.sh
       - db_data:/var/lib/postgresql/data
       - files_private_data:/var/www/files_private
     ports:
