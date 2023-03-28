@@ -16,6 +16,10 @@ RUN mkdir -p /etc/nginx
 COPY tasks/ /etc/periodic/
 RUN chmod -R +x /etc/periodic/
 
+# Configure varnish
+RUN apk add --no-cache varnish
+RUN mkdir -p /etc/varnish
+
 # ------------------------
 # SSH Server support
 # Alpine Reference: https://docs.microsoft.com/en-us/azure/app-service/configure-custom-container?pivots=container-linux#enable-ssh
