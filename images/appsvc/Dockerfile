@@ -12,6 +12,8 @@ COPY conf/supervisord.ini /etc/supervisor.d/supervisord.ini
 RUN apk add --no-cache nginx
 RUN mkdir -p /etc/nginx
 
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+
 # Configure cron
 COPY tasks/ /etc/periodic/
 RUN chmod -R +x /etc/periodic/
@@ -19,6 +21,9 @@ RUN chmod -R +x /etc/periodic/
 # Configure varnish
 RUN apk add --no-cache varnish
 RUN mkdir -p /etc/varnish
+
+COPY conf/default.vcl /etc/varnish/default.vcl
+COPY conf/splash.html /etc/varnish/splash.html
 
 # ------------------------
 # SSH Server support
