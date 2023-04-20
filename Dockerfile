@@ -1,5 +1,5 @@
 # https://github.com/docker-library/drupal/blob/master/8.8/fpm-alpine/Dockerfile
-FROM drupal:9.0-fpm-alpine
+FROM drupal:9.4.13-php8.1-fpm-alpine3.16
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME

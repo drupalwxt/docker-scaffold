@@ -1,0 +1,20 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/chiru/docker-scaffold'
+docker build -f docker/Dockerfile \
+    -t drupalwxt/site-wxt:'latest' \
+    --build-arg SSH_PRIVATE_KEY="$(test -f $HOME/.ssh/id_rsa && base64 $HOME/.ssh/id_rsa)" \
+    --no-cache \
+    --build-arg http_proxy=$HTTP_PROXY \
+    --build-arg HTTP_PROXY=$HTTP_PROXY \
+    --build-arg https_proxy=$HTTP_PROXY \
+    --build-arg HTTPS_PROXY=$HTTP_PROXY \
+    --build-arg no_proxy=$NO_PROXY \
+    --build-arg NO_PROXY=$NO_PROXY \
+    --build-arg GIT_USERNAME= \
+    --build-arg GIT_PASSWORD= .
+make: Leaving directory '/home/chiru/docker-scaffold'
+ 
+Makefile:1: .env: No such file or directory
+make: *** No rule to make target '.env'.
+make: Failed to remake makefile '.env'.
+
