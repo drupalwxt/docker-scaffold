@@ -1,5 +1,5 @@
-# https://github.com/docker-library/drupal/blob/master/8.8/fpm-alpine/Dockerfile
-FROM drupal:9.4.13-php8.1-fpm-alpine3.16
+# https://github.com/docker-library/drupal/blob/master/9.5/php8.1/fpm-alpine3.16/Dockerfile	
+FROM drupal:9.5-php8.1-fpm-alpine
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
@@ -61,7 +61,7 @@ RUN apk add --update --no-cache autoconf \
 COPY docker/certs/BaltimoreCyberTrustRoot.crt.pem /etc/ssl/mysql/BaltimoreCyberTrustRoot.crt.pem
 
 # Redis
-ENV PHPREDIS_VERSION 5.3.2
+ENV PHPREDIS_VERSION 5.3.7
 RUN mkdir -p /usr/src/php/ext/redis \
     && curl -L https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
     && echo 'redis' >> /usr/src/php-available-exts \
@@ -69,7 +69,7 @@ RUN mkdir -p /usr/src/php/ext/redis \
 
 # Composer recommended settings
 ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_VERSION 2.1.14
+ENV COMPOSER_VERSION 2.4.4
 ENV COMPOSER_MEMORY_LIMIT -1
 ENV COMPOSER_EXIT_ON_PATCH_FAILURE 1
 
@@ -89,8 +89,13 @@ RUN php /tmp/composer-setup.php --no-ansi \
 RUN rm -rf /root/.composer && \
     rm -rf /var/www/*
 COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
-COPY composer.json /var/www/composer.json
-COPY composer.lock /var/www/composer.lock
+COPY composer.json composer.lock /var/www/	
+# Copy possible custom modules and custom themes	
+COPY html/modules/custom/ /var/www/html/modules/custom/	
+COPY html/themes/custom/ /var/www/html/themes/custom/	
+# Copy possible config/sync and other config	
+COPY config/ /var/www/config/	
+WORKDIR /var/www
 
 # Copy local patches folder from repo to www folder
 COPY patches/ /var/www/patches/
@@ -102,6 +107,7 @@ RUN apk --update --no-cache add git openssh-client; \
     ssh-keyscan github.com > /root/.ssh/known_hosts; \
     composer --version && \
     composer install --prefer-dist \
+                     --ignore-platform-reqs \
                      --no-interaction && \
     rm -rf /root/.ssh && \
     apk del openssh-client
