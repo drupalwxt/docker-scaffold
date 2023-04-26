@@ -2,6 +2,8 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE as src
 
+ARG VARNISH=false
+
 # Configure supervisor
 RUN apk add --no-cache supervisor
 RUN mkdir -p /etc/supervisor.d/
@@ -19,11 +21,13 @@ COPY tasks/ /etc/periodic/
 RUN chmod -R +x /etc/periodic/
 
 # Configure varnish
-RUN apk add --no-cache varnish
 RUN mkdir -p /etc/varnish
-
 COPY conf/default.vcl /etc/varnish/default.vcl
 COPY conf/splash.html /etc/varnish/splash.html
+
+RUN if [ "$VARNISH" = "true" ]; then \
+    apk add --no-cache varnish; \
+fi
 
 # ------------------------
 # SSH Server support
