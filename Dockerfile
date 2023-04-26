@@ -14,13 +14,13 @@ HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php
 
 # Install additional extensions
 RUN apk --update add --no-cache bash \
-                                git \
-                                gzip \
-                                mysql-client \
-                                patch \
-                                postgresql-client \
-                                ssmtp \
-                                zlib-dev
+    git \
+    gzip \
+    mysql-client \
+    patch \
+    postgresql-client \
+    ssmtp \
+    zlib-dev
 
 COPY docker/conf/ssmtp.conf /etc/ssmtp/ssmtp.conf
 RUN echo "hostname=drupalwxt.github.io" >> /etc/ssmtp/ssmtp.conf
@@ -29,24 +29,32 @@ COPY docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
 RUN apk add --update --no-cache autoconf \
-                                icu \
-                                icu-libs \
-                                libzip-dev \
-                                gcc \
-                                g++ \
-                                make \
-                                libffi-dev \
-                                openssl-dev; \
+    icu \
+    icu-libs \
+    libzip-dev \
+    gcc \
+    g++ \
+    make \
+    libffi-dev \
+    openssl-dev; \
     \
     apk add --no-cache --virtual .build-deps icu-dev; \
     \
     docker-php-ext-configure zip \
-        --with-zlib-dir=/usr; \
+    --with-zlib-dir=/usr; \
     \
     docker-php-ext-install -j "$(nproc)" \
-        bcmath \
-        intl \
-        zip; \
+    bcmath \
+    intl \
+    zip; \
+    \
+    docker-php-source extract \	
+    && pecl install \	
+    mysqlnd_azure \	
+    && docker-php-ext-enable \	
+    mysqlnd_azure \	
+    && docker-php-source delete \	
+    && mkdir -p /etc/ssl/mysql \	
     \
     apk del .build-deps
 
@@ -72,9 +80,9 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer; \
 
 # Install Composer
 RUN php /tmp/composer-setup.php --no-ansi \
-                                --install-dir=/usr/local/bin \
-                                --filename=composer \
-                                --version=${COMPOSER_VERSION}; \
+    --install-dir=/usr/local/bin \
+    --filename=composer \
+    --version=${COMPOSER_VERSION}; \
     rm -rf /tmp/composer-setup.php
 
 # Install Drupal WxT
@@ -89,15 +97,19 @@ COPY html/themes/custom/ /var/www/html/themes/custom/
 # Copy possible config/sync and other config
 COPY config/ /var/www/config/
 
+# Copy local patches folder from repo to www folder	
+COPY patches/ /var/www/patches/
 WORKDIR /var/www
 
 RUN apk --update --no-cache add git openssh-client; \
     mkdir -p /root/.ssh; echo $SSH_PRIVATE_KEY | base64 -d > /root/.ssh/id_rsa; \
     chmod 700 /root/.ssh; chmod 600 /root/.ssh/id_rsa; \
     ssh-keyscan github.com > /root/.ssh/known_hosts; \
+    # Copy local patches folder from repo to www folder	
+    composer --version && \
     composer install --prefer-dist \
-                     --ignore-platform-reqs \
-                     --no-interaction && \
+    --ignore-platform-reqs \
+    --no-interaction && \
     rm -rf /root/.ssh && \
     apk del openssh-client
 
