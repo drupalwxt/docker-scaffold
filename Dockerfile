@@ -48,14 +48,6 @@ RUN apk add --update --no-cache autoconf \
     intl \
     zip; \
     \
-    docker-php-source extract \	
-    && pecl install \	
-    mysqlnd_azure \	
-    && docker-php-ext-enable \	
-    mysqlnd_azure \	
-    && docker-php-source delete \	
-    && mkdir -p /etc/ssl/mysql \	
-    \
     apk del .build-deps
 
 COPY docker/certs/BaltimoreCyberTrustRoot.crt.pem /etc/ssl/mysql/BaltimoreCyberTrustRoot.crt.pem
