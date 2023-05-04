@@ -29,6 +29,10 @@ RUN if [ "$VARNISH" = "true" ]; then \
     apk add --no-cache varnish; \
 fi
 
+RUN if [ "$REDIS" = "true" ]; then \
+    apk --update add redis; \
+fi
+
 # ------------------------
 # SSH Server support
 # Alpine Reference: https://docs.microsoft.com/en-us/azure/app-service/configure-custom-container?pivots=container-linux#enable-ssh
