@@ -63,13 +63,13 @@ docker_start:
 	docker compose up -d
 
 docker_start_solr:
-	docker compose -f docker-composer.solr.yml up -d
+	docker compose -f docker-compose.solr.yml up -d
 
 docker_stop:
 	docker compose down
 
 docker_stop_solr:
-	docker compose -f docker-composer.solr.yml down
+	docker compose -f docker-compose.solr.yml down
 
 drupal_cs:
 	mkdir -p html/core/
