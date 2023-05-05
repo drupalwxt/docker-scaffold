@@ -1,0 +1,64 @@
+# Docker Compose (v2)
+
+version: "2"
+services:
+  web:
+    extends:
+      file: docker-compose.base.yml
+      service: web
+    build:
+      context: docker/images/dev
+    volumes:
+      - .:/var/www
+
+  cli:
+    extends:
+      file: docker-compose.base.yml
+      service: cli
+    volumes:
+      - ./:/var/www
+
+  nginx:
+    extends:
+      file: docker-compose.base.yml
+      service: nginx
+    volumes:
+      - ./html:/var/www/html
+      - ./docker/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+
+  db:
+    extends:
+      file: docker-compose.base.yml
+      service: ${DB_TYPE:-mysql}
+
+  hub:
+    extends:
+      file: docker-compose.base.yml
+      service: hub
+
+  firefox:
+    extends:
+      file: docker-compose.base.yml
+      service: firefox
+
+  solr:
+      build:
+        context: docker/images/solr
+      ports:
+        - "8983:8983"
+      volumes:
+        - solr_data:/var/solr
+      entrypoint:
+        - bash
+        - "-c"
+        - "precreate-core drupal; exec solr -f"
+      depends_on:
+        - web
+      restart: always
+      container_name: ${DOCKER_NAME}_solr
+
+volumes:
+  db_data:
+  files_data:
+  files_private_data:
+  solr_data:
