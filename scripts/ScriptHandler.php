@@ -1,14 +1,19 @@
 <?php
 
+/**
+ * @file
+ * Contains \DrupalProject\composer\ScriptHandler.
+ */
+
 namespace DrupalWxT\WxT;
 
-use Composer\Package\RootPackage;
-use Composer\Factory;
 use Composer\Script\Event;
 use Composer\Semver\Comparator;
-use Composer\Util\ProcessExecutor;
+use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\SettingsEditor;
+use DrupalFinder\DrupalFinder;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\Path;
 
 class ScriptHandler {
 
@@ -30,47 +35,45 @@ class ScriptHandler {
    */
   public static function createRequiredFiles(Event $event) {
     $fs = new Filesystem();
-    $root = static::getDrupalRoot(getcwd());
+    $drupalFinder = new DrupalFinder();
+    $drupalFinder->locateRoot(getcwd());
+    $drupalRoot = $drupalFinder->getDrupalRoot();
+
     $dirs = [
       'modules',
       'profiles',
       'themes',
     ];
 
-    // Required for unit testing.
+    // Required for unit testing
     foreach ($dirs as $dir) {
-      if (!$fs->exists($root . '/' . $dir)) {
-        $fs->mkdir($root . '/' . $dir);
-        $fs->touch($root . '/' . $dir . '/.gitkeep');
+      if (!$fs->exists($drupalRoot . '/'. $dir)) {
+        $fs->mkdir($drupalRoot . '/'. $dir);
+        $fs->touch($drupalRoot . '/'. $dir . '/.gitkeep');
       }
     }
 
-    // Prepare the settings file for installation.
-    if (!$fs->exists($root . '/sites/default/settings.php') and $fs->exists($root . '/sites/default/default.settings.php')) {
-      $fs->copy($root . '/sites/default/default.settings.php', $root . '/sites/default/settings.php');
-      $fs->chmod($root . '/sites/default/settings.php', 0666);
-      $event->getIO()->write("Create a sites/default/settings.php file with chmod 0666");
+    // Prepare the settings file for installation
+    if (!$fs->exists($drupalRoot . '/sites/default/settings.php') && $fs->exists($drupalRoot . '/sites/default/default.settings.php')) {
+      $fs->copy($drupalRoot . '/sites/default/default.settings.php', $drupalRoot . '/sites/default/settings.php');
+      require_once $drupalRoot . '/core/includes/bootstrap.inc';
+      require_once $drupalRoot . '/core/includes/install.inc';
+      new Settings([]);
+      $settings['settings']['config_sync_directory'] = (object) [
+        'value' => Path::makeRelative($drupalFinder->getComposerRoot() . '/config/sync', $drupalRoot),
+        'required' => TRUE,
+      ];
+      SettingsEditor::rewrite($drupalRoot . '/sites/default/settings.php', $settings);
+      $fs->chmod($drupalRoot . '/sites/default/settings.php', 0666);
+      $event->getIO()->write("Created a sites/default/settings.php file with chmod 0666");
     }
 
-    // Prepare the services file for installation.
-    if (!$fs->exists($root . '/sites/default/services.yml') and $fs->exists($root . '/sites/default/default.services.yml')) {
-      $fs->copy($root . '/sites/default/default.services.yml', $root . '/sites/default/services.yml');
-      $fs->chmod($root . '/sites/default/services.yml', 0666);
-      $event->getIO()->write("Create a sites/default/services.yml file with chmod 0666");
-    }
-
-    // Create the files directory with chmod 0777.
-    if (!$fs->exists($root . '/sites/default/files')) {
+    // Create the files directory with chmod 0777
+    if (!$fs->exists($drupalRoot . '/sites/default/files')) {
       $oldmask = umask(0);
-      $fs->mkdir($root . '/sites/default/files', 0777);
+      $fs->mkdir($drupalRoot . '/sites/default/files', 0777);
       umask($oldmask);
-      $event->getIO()->write("Create a sites/default/files directory with chmod 0777");
-    }
-
-    // Rename Chosen to minified asset.
-    if ($fs->exists($root . '/libraries/chosen/chosen.jquery.js') and $fs->exists($root . '/libraries/chosen/chosen.css')) {
-      $fs->copy($root . '/libraries/chosen/chosen.jquery.js', $root . '/libraries/chosen/chosen.jquery.min.js');
-      $fs->copy($root . '/libraries/chosen/chosen.css', $root . '/libraries/chosen/chosen.min.css');
+      $event->getIO()->write("Created a sites/default/files directory with chmod 0777");
     }
   }
 
@@ -91,12 +94,15 @@ class ScriptHandler {
   public static function checkComposerVersion(Event $event) {
     $composer = $event->getComposer();
     $io = $event->getIO();
+
     $version = $composer::VERSION;
+
     // The dev-channel of composer uses the git revision as version number,
     // try to the branch alias instead.
     if (preg_match('/^[0-9a-f]{40}$/i', $version)) {
       $version = $composer::BRANCH_ALIAS_VERSION;
     }
+
     // If Composer is installed through git we have no easy way to determine if
     // it is new enough, just display a warning.
     if ($version === '@package_version@' || $version === '@package_branch_alias_version@') {
@@ -105,29 +111,6 @@ class ScriptHandler {
     elseif (Comparator::lessThan($version, '1.0.0')) {
       $io->writeError('<error>Drupal-project requires Composer version 1.0.0 or higher. Please update your Composer before continuing</error>.');
       exit(1);
-    }
-  }
-
-  /**
-   * Deploys front-end related libraries to WxT's install profile directory.
-   *
-   * @param \Composer\Script\Event $event
-   *   The script event.
-   */
-  public static function deployLibraries(Event $event) {
-    $extra = $event->getComposer()->getPackage()->getExtra();
-    if (isset($extra['installer-paths'])) {
-      foreach ($extra['installer-paths'] as $path => $criteria) {
-        if (array_intersect(['drupal/wxt', 'type:drupal-profile'], $criteria)) {
-          $wxt = $path;
-        }
-      }
-      if (isset($wxt)) {
-        $wxt = str_replace('{$name}', 'wxt', $wxt);
-        $executor = new ProcessExecutor($event->getIO());
-        $output = NULL;
-        $executor->execute('npm run deploy-libraries', $output, $wxt);
-      }
     }
   }
 
