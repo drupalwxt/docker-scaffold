@@ -2,6 +2,8 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE as src
 
+ARG VARNISH=false
+
 # Configure supervisor
 RUN apk add --no-cache supervisor
 RUN mkdir -p /etc/supervisor.d/
@@ -12,9 +14,24 @@ COPY conf/supervisord.ini /etc/supervisor.d/supervisord.ini
 RUN apk add --no-cache nginx
 RUN mkdir -p /etc/nginx
 
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+
 # Configure cron
 COPY tasks/ /etc/periodic/
 RUN chmod -R +x /etc/periodic/
+
+# Configure varnish
+RUN mkdir -p /etc/varnish
+COPY conf/default.vcl /etc/varnish/default.vcl
+COPY conf/splash.html /etc/varnish/splash.html
+
+RUN if [ "$VARNISH" = "true" ]; then \
+    apk add --no-cache varnish; \
+fi
+
+RUN if [ "$REDIS" = "true" ]; then \
+    apk --update add redis; \
+fi
 
 # ------------------------
 # SSH Server support
