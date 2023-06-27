@@ -137,12 +137,12 @@ phpunit:
 	./docker/bin/phpunit --colors=always \
 	    -c /var/www/html/core/phpunit.xml \
 	    --testsuite=kernel \
-	    --group $(PROFILE_NAME)
+	    --group=$(PROFILE_NAME)
 
 	./docker/bin/phpunit --colors=always \
 	    -c /var/www/html/core/phpunit.xml \
 	    --testsuite=unit \
-	    --group $(PROFILE_NAME)
+	    --group=$(PROFILE_NAME)
 
 release: tag_latest
 	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make base'"; false; fi
