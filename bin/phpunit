@@ -20,15 +20,15 @@ else
        -v /tmp:/tmp/"
 fi
 
+DB_TYPE="${DB_TYPE:-mysql}"
+DB_PORT="${DB_PORT:-3306}"
+DB_NAME="${DB_NAME:-wxt}"
+
 if [[ "$DB_TYPE" == "pgsql" ]]; then
   DB_CONNECTION="pgsql://root:root@db:5432"
 else
   DB_CONNECTION="mysql://root:root@db:3306"
 fi
-
-DB_TYPE="${DB_TYPE:-mysql}"
-DB_PORT="${DB_PORT:-3306}"
-DB_NAME="${DB_NAME:-wxt}"
 
 docker run -i \
   --entrypoint=/var/www/vendor/bin/phpunit \

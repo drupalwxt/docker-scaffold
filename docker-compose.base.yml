@@ -125,7 +125,7 @@ services:
       retries: 10
 
   hub:
-    image: selenium/hub:3.141.59
+    image: selenium/hub:4.1.4
     ports:
       - "4444:4444"
     depends_on:
@@ -137,9 +137,11 @@ services:
     platform: linux/amd64
 
   firefox:
-    image: selenium/node-firefox:2.53.1
+    image: selenium/node-firefox:4.1.4
     environment:
-      HUB_PORT_4444_TCP_ADDR: hub
+      SE_EVENT_BUS_HOST: hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
     depends_on:
       db:
         condition: service_healthy
