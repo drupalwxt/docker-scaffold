@@ -74,7 +74,7 @@ sub vcl_backend_fetch {
 }
 
 sub vcl_backend_response {
-  if (beresp.http.Location && beresp.http.Location !~ "^https://api.twitter.com/") {
+  if (beresp.http.Location && beresp.http.Location !~ "^https://api.twitter.com/" && beresp.http.Location !~ "^https://login.microsoftonline.com/") {
     set beresp.http.Location = regsub(
       beresp.http.Location,
       "^https?://[^/]+/",
