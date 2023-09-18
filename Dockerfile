@@ -1,5 +1,5 @@
 # https://github.com/docker-library/drupal/blob/master/10.0/php8.1/fpm-alpine3.16/Dockerfile
-FROM drupal:10.0-php8.2-fpm-alpine
+FROM drupal:10.0-php8.1-fpm-alpine
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
@@ -88,8 +88,6 @@ COPY html/modules/custom/ /var/www/html/modules/custom/
 COPY html/themes/custom/ /var/www/html/themes/custom/
 # Copy possible config/sync and other config
 COPY config/ /var/www/config/
-# Copy possible load.environment.php
-COPY load.environment.php /var/www/
 
 WORKDIR /var/www
 
