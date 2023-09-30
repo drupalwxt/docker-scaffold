@@ -68,7 +68,7 @@ services:
     container_name: ${DOCKER_NAME}_nginx
 
   mysql:
-    image: mysql:8.0
+    image: "mysql:${DB_VERSION:-8.0}"
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=${DB_NAME}
@@ -86,7 +86,7 @@ services:
       retries: 10
 
   pgsql:
-    image: postgres:12-alpine
+    image: "postgres:${DB_VERSION:-12-alpine}"
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=root
