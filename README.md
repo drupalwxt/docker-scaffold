@@ -89,7 +89,7 @@ You can see the docker-scaffold in use in the `site-wxt` repository:
 
 For more information please consult the documentation:
 
-* https://drupalwxt.github.io/en/docs/environment/containers/
+* https://drupalwxt.github.io/docs/environment/containers/
 
 [composer]:                     https://getcomposer.org
 [docker-scaffold]:              https://github.com/drupalwxt/docker-scaffold.git
