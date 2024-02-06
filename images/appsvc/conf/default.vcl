@@ -61,15 +61,20 @@ sub vcl_recv {
 }
 
 sub vcl_backend_fetch {
-  # NEW
-  set bereq.http.Host = "nginx";
+  # Check for host domain env variable, otherwise stick with normal nginx host
+  if (std.getenv("VARNISH_BACKEND_HOST_DOMAIN")) {
+    set bereq.http.Host = std.getenv("VARNISH_BACKEND_HOST_DOMAIN");
+  }
+  else {
+    set bereq.http.Host = "nginx";
+  }
 
   # Don't add 127.0.0.1 to X-Forwarded-For
   set bereq.http.X-Forwarded-For = regsub(bereq.http.X-Forwarded-For, "(, )?127\.0\.0\.1$", "");
 }
 
 sub vcl_backend_response {
-  if (beresp.http.Location && beresp.http.Location !~ "^https://api.twitter.com/") {
+  if (beresp.http.Location && beresp.http.Location !~ "^https://api.twitter.com/" && beresp.http.Location !~ "^https://login.microsoftonline.com/") {
     set beresp.http.Location = regsub(
       beresp.http.Location,
       "^https?://[^/]+/",
