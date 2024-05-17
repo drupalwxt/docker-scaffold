@@ -2,7 +2,8 @@
 ARG BASE_IMAGE
 FROM $BASE_IMAGE as src
 
-ARG VARNISH=false
+ARG VARNISH=true
+ARG REDIS=true
 
 # Configure supervisor
 RUN apk add --no-cache supervisor

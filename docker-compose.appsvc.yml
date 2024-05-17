@@ -28,7 +28,7 @@ services:
       - DB_NAME=${DB_NAME:-wxt}
     env_file: .env
     ports:
-      - "9000"
+      - "80:80"
     container_name: ${DOCKER_NAME}_appsvc
     volumes:
       - ./docker/conf/drupal/settings.php:/var/www/html/sites/default/settings.php:ro
