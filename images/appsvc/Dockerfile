@@ -29,6 +29,9 @@ RUN if [ "$VARNISH" = "true" ]; then \
     apk add --no-cache varnish; \
 fi
 
+# Configure redis
+RUN mkdir -p /var/log/redis
+
 RUN if [ "$REDIS" = "true" ]; then \
     apk --update add redis; \
 fi
