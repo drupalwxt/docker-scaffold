@@ -16,6 +16,7 @@ RUN apk add --no-cache nginx
 RUN mkdir -p /etc/nginx
 
 COPY conf/nginx.conf /etc/nginx/nginx.conf
+COPY conf/redis.conf /etc/redis.conf
 
 # Configure cron
 COPY tasks/ /etc/periodic/
