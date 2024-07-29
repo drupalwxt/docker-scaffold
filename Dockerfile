@@ -82,7 +82,7 @@ RUN rm -f /var/www/composer.lock; \
     rm -rf /root/.composer
 RUN rm -rf /var/www/*
 COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
-COPY composer.json composer.lock /var/www/
+COPY composer.json composer.lock auth.json* /var/www/
 # Copy possible custom modules and custom themes
 COPY html/modules/custom/ /var/www/html/modules/custom/
 COPY html/themes/custom/ /var/www/html/themes/custom/
@@ -120,3 +120,6 @@ RUN ln -s /var/www/vendor/drush/drush/drush /usr/local/bin/drush
 
 # Reset Cache
 RUN php -r 'opcache_reset();'
+
+# Remove auth.json
+RUN rm -f /var/www/auth.json
