@@ -81,7 +81,7 @@ RUN php /tmp/composer-setup.php --no-ansi \
 RUN rm -f /var/www/composer.lock; \
     rm -rf /root/.composer
 RUN rm -rf /var/www/*
-COPY scripts/* /var/www/scripts/*
+COPY scripts/ /var/www/scripts/
 COPY composer.json composer.lock auth.json* /var/www/
 # Copy possible custom modules and custom themes
 COPY html/modules/custom/ /var/www/html/modules/custom/
