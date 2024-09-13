@@ -23,6 +23,7 @@ base:
 	    --build-arg HTTPS_PROXY=$$HTTP_PROXY \
 	    --build-arg no_proxy=$$NO_PROXY \
 	    --build-arg NO_PROXY=$$NO_PROXY \
+	    --build-arg COMPOSER_VERSION=$(COMPOSER_VERSION) \
 	    --build-arg GIT_USERNAME=$(GIT_USERNAME) \
 	    --build-arg GIT_PASSWORD=$(GIT_PASSWORD) .
 
