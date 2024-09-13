@@ -7,6 +7,7 @@ PLATFORM := $(shell uname -s)
 DB_NAME := $(or $(DB_NAME),$(DB_NAME),'wxt')
 DB_TYPE := $(or $(DB_TYPE),$(DB_TYPE),'mysql')
 DB_PORT := $(or $(DB_PORT),$(DB_PORT),'3306')
+COMPOSER_VERSION := $(or $(COMPOSER_VERSION),$(COMPOSER_VERSION),'2.7.9')
 PROFILE_NAME := $(or $(PROFILE_NAME),$(PROFILE_NAME),'wxt')
 
 all: base
