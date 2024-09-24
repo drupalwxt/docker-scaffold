@@ -9,12 +9,44 @@ backend nginx {
   .port = "8080";
 }
 
+acl purge {
+  "127.0.0.1";  # Allow IPv4 localhost
+  "::1";        # Allow IPv6 localhost
+}
+
 sub vcl_init {
   new backends = directors.round_robin();
   backends.add_backend(nginx);
 }
 
 sub vcl_recv {
+  # Only allow PURGE requests from localhost.
+  if (req.method == "PURGE") {
+    if (!client.ip ~ purge) {
+      return (synth(405, "Not allowed."));
+    }
+    return (hash);
+  }
+
+  # Only allow BAN requests from localhost.
+  if (req.method == "BAN") {
+    if (!client.ip ~ purge) {
+      return (synth(403, "Not allowed."));
+    }
+
+    # Logic for the ban, using the Cache-Tags header. For more info
+    # see https://github.com/geerlingguy/drupal-vm/issues/397.
+    if (req.http.Cache-Tags) {
+      ban("obj.http.Cache-Tags ~ " + req.http.Cache-Tags);
+    }
+    else {
+      return (synth(403, "Cache-Tags header missing."));
+    }
+
+    # Throw a synthetic page so the request won't go to the backend.
+    return (synth(200, "Ban added."));
+  }
+
   set req.http.X-Forwarded-Host = req.http.Host;
   if (!req.http.X-Forwarded-Proto) {
     set req.http.X-Forwarded-Proto = "http";
