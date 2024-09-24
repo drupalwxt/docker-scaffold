@@ -116,7 +116,7 @@ sub vcl_backend_response {
   # Only cache select response codes
   if (beresp.status == 200 || beresp.status == 203 || beresp.status == 204 || beresp.status == 206 || beresp.status == 300 || beresp.status == 301 || beresp.status == 404 || beresp.status == 405 || beresp.status == 410 || beresp.status == 414 || beresp.status == 501) {
     # Cache for 5 minutes
-    set beresp.ttl = 5m;
+    set beresp.ttl = 30d;
     set beresp.grace = 12h;
     set beresp.keep = 24h;
   } else {
