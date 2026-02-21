@@ -3,7 +3,8 @@ FROM $BASE_IMAGE as src
 
 FROM nginx:alpine
 
-RUN chown -R nginx:www-data /var/cache/nginx /var/run /var/log/nginx && \
-    chmod -R 755 /var/cache/nginx /var/run /var/log/nginx
+# Make writable for random UID (OpenShift) and normal nginx (K8s)
+RUN chgrp -R 0 /var/cache/nginx /var/run /var/log/nginx && \
+    chmod -R g+rwX /var/cache/nginx /var/run /var/log/nginx
 
 COPY --from=src /var/www/html /var/www/html
