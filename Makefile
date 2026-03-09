@@ -27,7 +27,7 @@ base:
 	    --build-arg GIT_PASSWORD=$(GIT_PASSWORD) .
 
 behat:
-	./docker/bin/behat -vv -c behat.yml --colors
+	./docker/bin/behat -vv -c profiles/wxt/tests/behat.yml --colors
 
 build: all
 
