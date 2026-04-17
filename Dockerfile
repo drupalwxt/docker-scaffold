@@ -1,5 +1,5 @@
 # https://github.com/docker-library/drupal/blob/master/11.2/php8.3/fpm-alpine3.21/Dockerfile
-FROM drupal:11.2.7-php8.3-fpm-alpine3.21
+FROM drupal:11.3-php8.4-fpm-alpine3.22
 
 ARG SSH_PRIVATE_KEY
 ARG GIT_USERNAME
@@ -61,7 +61,7 @@ RUN mkdir -p /usr/src/php/ext/redis \
 
 # Composer recommended settings
 ENV COMPOSER_ALLOW_SUPERUSER 1
-ENV COMPOSER_VERSION 2.4.4
+ENV COMPOSER_VERSION 2.9.5
 ENV COMPOSER_MEMORY_LIMIT -1
 ENV COMPOSER_EXIT_ON_PATCH_FAILURE 1
 
