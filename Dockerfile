@@ -1,4 +1,4 @@
-# https://github.com/docker-library/drupal/blob/master/11.2/php8.3/fpm-alpine3.21/Dockerfile
+# https://github.com/docker-library/drupal/blob/master/11.3/php8.4/fpm-alpine3.23/Dockerfile
 FROM drupal:11.3.19-php8.4-fpm-alpine3.23
 
 ARG SSH_PRIVATE_KEY
@@ -53,7 +53,7 @@ RUN apk add --update --no-cache autoconf \
 COPY docker/certs/BaltimoreCyberTrustRoot.crt.pem /etc/ssl/mysql/BaltimoreCyberTrustRoot.crt.pem
 
 # Redis
-ENV PHPREDIS_VERSION 5.3.7
+ENV PHPREDIS_VERSION=6.1.0
 RUN mkdir -p /usr/src/php/ext/redis \
     && curl -L https://github.com/phpredis/phpredis/archive/$PHPREDIS_VERSION.tar.gz | tar xvz -C /usr/src/php/ext/redis --strip 1 \
     && echo 'redis' >> /usr/src/php-available-exts \
