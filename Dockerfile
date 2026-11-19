@@ -1,4 +1,4 @@
-# https://github.com/docker-library/drupal/blob/master/11.3/php8.4/fpm-alpine3.23/Dockerfile
+# https://github.com/docker-library/drupal/blob/master/11.3/php8.4/fpm-alpine3.24/Dockerfile
 FROM drupal:11.3.22-php8.4-fpm-alpine3.24
 
 ARG SSH_PRIVATE_KEY
